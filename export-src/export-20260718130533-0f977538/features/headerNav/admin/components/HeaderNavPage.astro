@@ -1,0 +1,44 @@
+---
+import AdminCard from '../../../../components/admin/cards/Card.astro';
+import Button from '../../../../components/ui/Button.astro';
+
+import type { HeaderNavSettings } from '../../core/types';
+import HeaderNavLayoutSection from './HeaderNavLayoutSection.astro';
+import HeaderNavBrandSection from './HeaderNavBrandSection.astro';
+import HeaderNavNavigationSection from './HeaderNavNavigationSection.astro';
+import HeaderNavBorderSection from './HeaderNavBorderSection.astro';
+
+type Props = {
+	headerNav: HeaderNavSettings;
+	t: (key: string, fallback: string) => string;
+};
+
+const { headerNav, t } = Astro.props;
+---
+
+<form id="header_nav_form" class="grid gap-6" method="POST" action="/admin/action/header-nav/save">
+	<AdminCard>
+		<HeaderNavLayoutSection headerNav={headerNav} t={t} />
+	</AdminCard>
+
+	<AdminCard>
+		<HeaderNavBrandSection headerNav={headerNav} t={t} />
+	</AdminCard>
+
+	<AdminCard>
+		<HeaderNavNavigationSection headerNav={headerNav} t={t} />
+	</AdminCard>
+
+	<AdminCard>
+		<HeaderNavBorderSection headerNav={headerNav} t={t} />
+	</AdminCard>
+
+	<AdminCard>
+		<div class="flex items-center gap-3">
+			<Button type="submit">
+				{t('admin.header_nav.actions.save', 'Save header settings')}
+			</Button>
+			<span id="status" class="text-sm text-[var(--site-color-text-muted)]"></span>
+		</div>
+	</AdminCard>
+</form>

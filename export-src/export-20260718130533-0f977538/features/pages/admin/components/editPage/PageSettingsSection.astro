@@ -1,0 +1,105 @@
+---
+import AdminSection from '../../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../../components/admin/fields/Input.astro';
+import ToggleRow from '../../../../../components/admin/fields/ToggleRow.astro';
+
+import type { CmsPage } from '../../../core/types';
+
+type Props = {
+	page: CmsPage;
+	normalizedPath: string;
+	reservedPathReason?: string;
+	t: (key: string, fallback: string) => string;
+};
+
+const { page, normalizedPath, reservedPathReason = '', t } = Astro.props;
+const isHomePage = page.template === 'home';
+---
+
+<AdminSection
+	title={t('admin.pages.edit.settings.title', 'Page settings')}
+	description={isHomePage
+		? t('admin.pages.edit.settings.home_description', 'Set the public Home page basics. Home always uses / and links from the site title or logo.')
+		: t('admin.pages.edit.settings.default_description', 'Set the page name, public URL, publishing state, and optional navigation button.')}
+>
+	<AdminField
+		label={t('admin.pages.edit.settings.title_label', 'Title')}
+		forId="title"
+		help={isHomePage
+			? t('admin.pages.edit.settings.home_title_help', 'Shown in the admin page list. The public Home heading is controlled in the Home content header below.')
+			: t('admin.pages.edit.settings.title_help', 'Shown in the admin and used as the page heading. If no nav label is set, this also becomes the navigation button text.')}
+	>
+		<AdminInput id="title" name="title" type="text" value={page.title} />
+	</AdminField>
+
+	{isHomePage ? (
+		<>
+			<input type="hidden" name="path" value="/" />
+			<div class="grid gap-1 rounded-[var(--site-radius-card)] border border-dashed border-[var(--site-color-border-soft)] bg-white p-3 text-xs text-[var(--site-color-text-muted)]">
+				<div>
+					<span class="font-medium text-[var(--site-color-text)]">{t('admin.pages.edit.settings.path_label', 'Path')}:</span>
+					<span class="font-mono">/</span>
+				</div>
+				<div>{t('admin.pages.edit.settings.home_path_note', 'The Home page always owns the root URL. The site title and logo link here.')}</div>
+			</div>
+		</>
+	) : (
+		<>
+			<AdminField
+				label={t('admin.pages.edit.settings.path_label', 'Path')}
+				forId="path"
+				help={t('admin.pages.edit.settings.path_help', 'The public URL for this page. Spaces and trailing slashes are cleaned up automatically.')}
+			>
+				<AdminInput id="path" name="path" type="text" value={page.path} data-template={page.template} />
+			</AdminField>
+		</>
+	)}
+
+	{isHomePage ? null : (
+		<AdminField
+			label={t('admin.pages.edit.settings.nav_label', 'Nav label (optional)')}
+			forId="nav_label"
+			help={t('admin.pages.edit.settings.nav_label_help', 'Use this only when the navigation button should say something different from the page title.')}
+		>
+			<AdminInput id="nav_label" name="nav_label" type="text" value={page.nav_label ?? ''} />
+		</AdminField>
+	)}
+
+	<div class="grid gap-3 sm:grid-cols-2">
+		{isHomePage ? null : (
+			<AdminField
+				label={t('admin.pages.edit.settings.nav_order', 'Nav order (optional)')}
+				forId="nav_order"
+				help={t('admin.pages.edit.settings.nav_order_help', 'Lower numbers appear earlier in the navigation. Leave blank if the order does not matter yet.')}
+			>
+				<AdminInput id="nav_order" name="nav_order" type="number" value={page.nav_order ?? ''} />
+			</AdminField>
+		)}
+
+		<div class="grid gap-3 pt-6">
+			<ToggleRow
+				id="published"
+				name="published"
+				label={t('admin.pages.edit.settings.published', 'Published')}
+				help={t('admin.pages.edit.settings.published_help', 'Published pages can appear on the public site. Draft pages stay in the admin.')}
+				checked={page.published}
+				hiddenFalse={false}
+			/>
+			{isHomePage ? (
+				<p class="text-sm text-[var(--site-color-text-muted)]">
+					{t('admin.pages.edit.settings.home_nav_note', 'Home does not appear in navigation. The site title and logo link to it automatically.')}
+				</p>
+			) : (
+				<ToggleRow
+					id="show_in_nav"
+					name="show_in_nav"
+					label={t('admin.pages.edit.settings.show_in_nav', 'Show in navigation')}
+					help={t('admin.pages.edit.settings.show_in_nav_help', 'Adds this page to the site navigation using the nav label or title.')}
+					checked={page.show_in_nav}
+					hiddenFalse={false}
+				/>
+			)}
+		</div>
+	</div>
+</AdminSection>

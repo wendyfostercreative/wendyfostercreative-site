@@ -1,0 +1,165 @@
+---
+import type { HeaderNavSettings, NavItem } from '../../core/types';
+import { HEADER_NAV_RENDER_DEFAULTS } from '../../core/defaults';
+import { deriveHeaderNavStyles } from '../styles';
+import { getHeaderNavLayoutPreset } from '../../core/layoutPresets';
+import MobileHeaderNav from '../layouts/mobile/MobileHeaderNav.astro';
+import LogoLeftLinksBelowSiteLeft from '../layouts/desktop/LogoLeftLinksBelowSiteLeft.astro';
+import LogoSiteCenterLinksBelowCenter from '../layouts/desktop/LogoSiteCenterLinksBelowCenter.astro';
+import LogoSiteInlineSplitLayout from '../layouts/desktop/LogoSiteInlineSplitLayout.astro';
+import StackedCenteredLayout from '../layouts/desktop/StackedCenteredLayout.astro';
+
+interface Props {
+	siteName: string;
+	siteNameFont?: string | null;
+	logoPath: string;
+	navItems: NavItem[];
+	headerNav?: HeaderNavSettings | null;
+}
+
+const { siteName, siteNameFont, logoPath, navItems, headerNav } = Astro.props as Props;
+
+function asNonEmptyString(v: unknown): string | undefined {
+	if (typeof v !== 'string') return undefined;
+	const s = v.trim();
+	return s.length ? s : undefined;
+}
+
+function styleString(style: Record<string, string | undefined | null>): string {
+	return Object.entries(style)
+		.filter(([, v]) => typeof v === 'string' && v.trim().length > 0)
+		.map(([k, v]) => `${k}: ${v};`)
+		.join(' ');
+}
+
+const settings = headerNav ?? null;
+const styles = deriveHeaderNavStyles(settings);
+
+const resolvedSiteName = asNonEmptyString(siteName) ?? HEADER_NAV_RENDER_DEFAULTS.resolvedSiteName;
+const resolvedLogoPath = asNonEmptyString(logoPath);
+
+const headerStyle = styleString(styles.headerStyle);
+const containerStyle = styleString(styles.containerStyle);
+const brandStyle = styleString({
+	...styles.brandStyle,
+	'font-family': HEADER_NAV_RENDER_DEFAULTS.brandFontFamily,
+});
+
+const logoStyle = styleString(styles.logoStyle);
+const navStyle = styleString(styles.navStyle);
+const linkListStyle = styleString(styles.linkListStyle);
+const linkStyle = styleString(styles.linkStyle);
+
+const layoutPreset = asNonEmptyString(settings?.layout_preset) ?? 'logo-site-inline-split';
+const sticky = Boolean(settings?.sticky === true);
+const textDirection = settings?.text_direction === 'rtl' ? 'rtl' : 'ltr';
+
+const showLogo = Boolean(resolvedLogoPath);
+const hasSiteName = Boolean(asNonEmptyString(siteName));
+const showSiteNameText = hasSiteName && (settings?.show_site_name_with_logo === true || !showLogo);
+
+const enabledNavItems = navItems.filter((i) => i.enabled);
+
+const preset = getHeaderNavLayoutPreset(layoutPreset);
+const useDesktopLogoLeftLinksBelowSiteLeftLayout =
+	preset.value === 'logo-left-links-below-site-left';
+const useDesktopLogoSiteCenterLinksBelowCenterLayout =
+	preset.value === 'logo-site-center-links-below-center';
+const useDesktopStackedCenteredLayout =
+	preset.value === 'stacked-centered';
+
+const headerClasses = [
+	'header-nav-root',
+	'w-full',
+	sticky ? 'sticky top-0 z-40' : '',
+];
+
+const containerClasses = [
+	'mx-auto',
+	'w-full',
+	'flex',
+	'flex-col',
+];
+
+---
+
+<header dir={textDirection} style={headerStyle} class:list={headerClasses}>
+	<div style={containerStyle} class:list={containerClasses}>
+		<!-- Mobile layout -->
+		<MobileHeaderNav
+			resolvedSiteName={resolvedSiteName}
+			resolvedLogoPath={resolvedLogoPath}
+			showLogo={showLogo}
+			showSiteNameText={showSiteNameText}
+			enabledNavItems={enabledNavItems}
+			brandStyle={brandStyle}
+			logoStyle={logoStyle}
+			linkStyle={linkStyle}
+		/>
+
+		<!-- Desktop layout -->
+		{useDesktopLogoLeftLinksBelowSiteLeftLayout ? (
+			<LogoLeftLinksBelowSiteLeft
+				resolvedSiteName={resolvedSiteName}
+				resolvedLogoPath={resolvedLogoPath}
+				showLogo={showLogo}
+				showSiteNameText={showSiteNameText}
+				enabledNavItems={enabledNavItems}
+				brandStyle={brandStyle}
+				logoStyle={logoStyle}
+				navStyle={navStyle}
+				linkListStyle={linkListStyle}
+				linkStyle={linkStyle}
+			/>
+		) : useDesktopLogoSiteCenterLinksBelowCenterLayout ? (
+			<LogoSiteCenterLinksBelowCenter
+				resolvedSiteName={resolvedSiteName}
+				resolvedLogoPath={resolvedLogoPath}
+				showLogo={showLogo}
+				showSiteNameText={showSiteNameText}
+				enabledNavItems={enabledNavItems}
+				brandStyle={brandStyle}
+				logoStyle={logoStyle}
+				navStyle={navStyle}
+				linkListStyle={linkListStyle}
+				linkStyle={linkStyle}
+			/>
+		) : useDesktopStackedCenteredLayout ? (
+			<StackedCenteredLayout
+				resolvedSiteName={resolvedSiteName}
+				resolvedLogoPath={resolvedLogoPath}
+				showLogo={showLogo}
+				showSiteNameText={showSiteNameText}
+				enabledNavItems={enabledNavItems}
+				brandStyle={brandStyle}
+				logoStyle={logoStyle}
+				navStyle={navStyle}
+				linkListStyle={linkListStyle}
+				linkStyle={linkStyle}
+			/>
+		) : (
+			<LogoSiteInlineSplitLayout
+				resolvedSiteName={resolvedSiteName}
+				resolvedLogoPath={resolvedLogoPath}
+				showLogo={showLogo}
+				showSiteNameText={showSiteNameText}
+				enabledNavItems={enabledNavItems}
+				brandStyle={brandStyle}
+				logoStyle={logoStyle}
+				navStyle={navStyle}
+				linkListStyle={linkListStyle}
+				linkStyle={linkStyle}
+			/>
+		)}
+	</div>
+</header>
+
+<style>
+	:global(.header-nav-root nav a) {
+		cursor: pointer;
+	}
+
+	:global(.header-nav-root nav a:hover) {
+		text-decoration: underline !important;
+	}
+</style>

@@ -1,0 +1,30 @@
+---
+import AdminToggleRow from '../../../../../../components/admin/fields/ToggleRow.astro';
+import LayoutPicker from './layoutPicker.astro';
+
+import type { ImageGalleryDisplay } from '../../schema/types';
+
+type Props = {
+	display: ImageGalleryDisplay;
+	t: (key: string, fallback: string) => string;
+};
+
+const { display, t } = Astro.props;
+---
+
+<div class="grid gap-4 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-4">
+	<div>
+		<div class="text-sm font-medium text-[var(--site-color-text)]">{t('admin.pages.edit.templates.media.display.title', 'Gallery Display')}</div>
+		<p class="mt-1 text-xs text-[var(--site-color-text-muted)]">{t('admin.pages.edit.templates.media.display.description', 'Control the public gallery layout and visible media details.')}</p>
+	</div>
+
+	<LayoutPicker value={display.layout_variant} t={t} />
+
+	<div class="grid gap-3 md:grid-cols-2">
+		<AdminToggleRow id="images-show-title" label={t('admin.pages.edit.templates.media.display.show_title', 'Show titles')} checked={display.show_title} hiddenFalse={false} data-image-template-field="display.show_title" />
+		<AdminToggleRow id="images-show-description" label={t('admin.pages.edit.templates.media.display.show_description', 'Show descriptions')} checked={display.show_description} hiddenFalse={false} data-image-template-field="display.show_description" />
+		<AdminToggleRow id="images-show-price" label={t('admin.pages.edit.templates.media.display.show_price', 'Show prices')} checked={display.show_price} hiddenFalse={false} data-image-template-field="display.show_price" />
+		<AdminToggleRow id="images-show-collection" label={t('admin.pages.edit.templates.media.display.show_collection', 'Show collection')} checked={display.show_collection} hiddenFalse={false} data-image-template-field="display.show_collection" />
+		<AdminToggleRow id="images-show-materials" label={t('admin.pages.edit.templates.media.display.show_materials', 'Show materials')} checked={display.show_materials} hiddenFalse={false} data-image-template-field="display.show_materials" />
+	</div>
+</div>

@@ -1,0 +1,25 @@
+---
+type Props = {
+	title: string;
+	description: string;
+	href: string;
+	status?: string;
+};
+
+const { title, description, href, status = '' } = Astro.props;
+---
+
+<a
+	class="block rounded-[var(--site-radius-card)] border border-[var(--admin-color-field-border)] bg-[var(--admin-color-field-bg)] p-4 text-[var(--admin-color-field-text)] transition hover:border-[var(--site-color-border)]"
+	href={href}
+>
+	<div class="flex items-start justify-between gap-3">
+		<div>
+			<div class="text-lg font-semibold">{title}</div>
+			<p class="mt-2 text-sm leading-6 text-[var(--admin-color-field-placeholder)]">{description}</p>
+		</div>
+		{status ? (
+			<span class="rounded-[var(--site-radius-input)] bg-[var(--admin-color-disabled-bg)] px-2 py-1 text-xs text-[var(--admin-color-disabled-text)]">{status}</span>
+		) : null}
+	</div>
+</a>

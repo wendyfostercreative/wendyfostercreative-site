@@ -1,0 +1,90 @@
+---
+import AdminCard from '../../../../components/admin/cards/Card.astro';
+import Button from '../../../../components/ui/Button.astro';
+import SiteProfileStarterPagesSection from './SiteProfileStarterPagesSection.astro';
+import SiteProfileTypeSection from './SiteProfileTypeSection.astro';
+
+import type { CmsPage } from '../../../pages/core/types';
+import {
+	STARTER_PAGE_FALLBACK_LABELS,
+	STARTER_PAGE_FALLBACK_SLUGS,
+	starterPageLabelKey,
+	starterPageSlugKey,
+} from '../../../orion/core/workflow/siteProfile';
+import type { SiteProfile } from '../../core/types';
+
+type Props = {
+	profile: SiteProfile;
+	pages: CmsPage[];
+	t: (key: string, fallback: string) => string;
+};
+
+const { profile, pages, t } = Astro.props;
+const starterPageLabels = Object.fromEntries(
+	Object.entries(STARTER_PAGE_FALLBACK_LABELS).map(([key, fallback]) => [
+		key,
+		t(starterPageLabelKey(key), fallback),
+	]),
+);
+const starterPageSlugs = Object.fromEntries(
+	Object.entries(STARTER_PAGE_FALLBACK_SLUGS).map(([key, fallback]) => [
+		key,
+		t(starterPageSlugKey(key), fallback),
+	]),
+);
+const templateLabels = Object.fromEntries(
+	['home', 'content', 'media', 'contact'].map((template) => [
+		template,
+		t(`admin.pages.templates.${template}.label`, template.toUpperCase()),
+	]),
+);
+---
+
+<div
+	class="grid gap-6"
+	data-site-profile-display-root
+	data-saved-profile={JSON.stringify(profile)}
+	data-saved-status={t('admin.index.site_profile.saved_status', '')}
+	data-preview-status={t('admin.index.site_profile.preview_status', 'Preview from Orion. Review the suggested changes in the page before applying them.')}
+	data-staged-status={t('admin.index.site_profile.staged_status', 'Draft changes visible here until you apply the full Site Profile.')}
+	data-starter-pages-empty={t('admin.index.site_profile.starter_pages_empty', 'No launch navigation pages yet. Orion will suggest and create the first top-nav pages during Site Profile setup.')}
+	data-starter-page-labels={JSON.stringify(starterPageLabels)}
+	data-starter-page-slugs={JSON.stringify(starterPageSlugs)}
+	data-template-labels={JSON.stringify(templateLabels)}
+>
+	<AdminCard>
+		<div class="grid gap-3">
+			<h2 class="text-lg font-semibold text-[var(--site-color-text)]">{t('admin.index.site_profile.setup_heading', 'Site Profile Setup')}</h2>
+			<p class="text-xs text-[var(--admin-color-field-placeholder)]" data-site-profile-display-status hidden></p>
+			<p class="text-sm text-[var(--site-color-text-muted)]">{t('admin.index.site_profile.setup_body', 'Choose the starter setup for this site. Orion uses this to prepare the first pages and navigation. You can update, rename, add, or remove pages later.')}</p>
+		</div>
+	</AdminCard>
+
+	<form id="site_profile_form" class="grid gap-6" method="POST" action="/admin/action/site-profile/save">
+		<input type="hidden" name="orion_draft_proposal" value="" data-site-profile-draft-proposal />
+		<AdminCard>
+			<SiteProfileTypeSection profile={profile} t={t} />
+		</AdminCard>
+
+		<AdminCard>
+			<SiteProfileStarterPagesSection pages={pages} starterPageLabels={starterPageLabels} t={t} />
+		</AdminCard>
+
+
+		<AdminCard>
+			<div class="flex items-center gap-3">
+				<Button type="submit">
+					{t('admin.index.site_profile.save_manual', 'SAVE SETTINGS')}
+				</Button>
+				<span id="status" class="text-sm text-[var(--site-color-text-muted)]"></span>
+			</div>
+		</AdminCard>
+	</form>
+</div>
+
+<script>
+	import { initDisplayController } from '../controllers/displayController';
+
+	const root = document.querySelector('[data-site-profile-display-root]') as HTMLElement | null;
+	if (root) initDisplayController(root);
+</script>

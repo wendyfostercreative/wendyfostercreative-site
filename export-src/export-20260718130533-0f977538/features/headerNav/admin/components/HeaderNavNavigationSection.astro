@@ -1,0 +1,86 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../components/admin/fields/Input.astro';
+import AdminSelect from '../../../../components/admin/fields/Select.astro';
+
+import type { HeaderNavSettings } from '../../core/types';
+import {
+	fontSizeOptions,
+	fontWeightOptions,
+	gapOptions,
+	letterSpacingOptions,
+	textTransformOptions,
+} from '../forms/headerNavFields';
+
+type Props = {
+	headerNav: HeaderNavSettings;
+	t: (key: string, fallback: string) => string;
+};
+
+const { headerNav, t } = Astro.props;
+function optionLabel(group: string, value: string, fallback: string): string {
+	return t(`admin.header_nav.options.${group}.${value}`, fallback);
+}
+---
+<AdminSection title={t('admin.header_nav.navigation.title', 'Navigation')} description={t('admin.header_nav.navigation.description', 'Controls link typography, spacing, and colors. Page visibility still lives in Pages.')}>
+	<div class="grid gap-5">
+		<div class="grid gap-4 sm:grid-cols-2">
+			<AdminField label={t('admin.header_nav.navigation.font_family', 'Font family')} forId="nav_font_family">
+				<AdminInput id="nav_font_family" name="nav_font_family" value={headerNav.nav_font_family ?? ''} />
+			</AdminField>
+		</div>
+
+		<div class="grid gap-4 sm:grid-cols-2">
+			<AdminField label={t('admin.header_nav.navigation.font_size', 'Font size')} forId="nav_font_size">
+				<AdminSelect id="nav_font_size" name="nav_font_size" density="compact">
+					{fontSizeOptions.map((option) => (
+						<option value={option.value} selected={headerNav.nav_font_size === option.value}>
+							{optionLabel('size', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.navigation.font_weight', 'Font weight')} forId="nav_font_weight">
+				<AdminSelect id="nav_font_weight" name="nav_font_weight" density="compact">
+					{fontWeightOptions.map((option) => (
+						<option value={option.value} selected={headerNav.nav_font_weight === option.value}>
+							{optionLabel('font_weight', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.navigation.text_transform', 'Text transform')} forId="nav_text_transform">
+				<AdminSelect id="nav_text_transform" name="nav_text_transform" density="compact">
+					{textTransformOptions.map((option) => (
+						<option value={option.value} selected={headerNav.nav_text_transform === option.value}>
+							{optionLabel('text_transform', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.navigation.letter_spacing', 'Nav letter spacing')} forId="nav_letter_spacing">
+				<AdminSelect id="nav_letter_spacing" name="nav_letter_spacing" density="compact">
+					{letterSpacingOptions.map((option) => (
+						<option value={option.value} selected={headerNav.nav_letter_spacing === option.value}>
+							{optionLabel('letter_spacing', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.navigation.link_spacing', 'Link spacing')} forId="link_spacing">
+				<AdminSelect id="link_spacing" name="link_spacing" density="compact">
+					{gapOptions.map((option) => (
+						<option value={option.value} selected={headerNav.link_spacing === option.value}>
+							{optionLabel('gap', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+		</div>
+	</div>
+</AdminSection>

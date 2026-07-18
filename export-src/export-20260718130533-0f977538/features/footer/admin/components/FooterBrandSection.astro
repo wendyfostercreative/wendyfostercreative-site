@@ -1,0 +1,65 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminSelect from '../../../../components/admin/fields/Select.astro';
+
+import type { FooterSettings } from '../../core/types';
+import {
+	booleanOptions,
+	brandLayoutOptions,
+	logoHeightOptions,
+} from '../forms/footerFields';
+
+type Props = {
+	footer: FooterSettings;
+	t: (key: string, fallback: string) => string;
+};
+
+const { footer, t } = Astro.props;
+function optionLabel(group: string, value: string, fallback: string): string {
+	return t(`admin.footer.options.${group}.${value}`, fallback);
+}
+---
+<AdminSection title={t('admin.footer.brand.title', 'Brand')} description={t('admin.footer.brand.description', 'Controls whether the footer displays the global site logo and site name.')}>
+	<div class="grid gap-4 sm:grid-cols-2">
+		<AdminField label={t('admin.footer.brand.show_logo', 'Show logo')} forId="show_logo">
+			<AdminSelect id="show_logo" name="show_logo" density="compact">
+				{booleanOptions.map((option) => (
+					<option value={option.value} selected={String(footer.show_logo) === option.value}>
+						{optionLabel('boolean', option.value, option.label)}
+					</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+
+		<AdminField label={t('admin.footer.brand.show_site_name', 'Show site name')} forId="show_site_name">
+			<AdminSelect id="show_site_name" name="show_site_name" density="compact">
+				{booleanOptions.map((option) => (
+					<option value={option.value} selected={String(footer.show_site_name) === option.value}>
+						{optionLabel('boolean', option.value, option.label)}
+					</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+
+		<AdminField label={t('admin.footer.brand.brand_layout', 'Brand layout')} forId="brand_layout">
+			<AdminSelect id="brand_layout" name="brand_layout" density="compact">
+				{brandLayoutOptions.map((option) => (
+					<option value={option.value} selected={footer.brand_layout === option.value}>
+						{optionLabel('brand_layout', option.value, option.label)}
+					</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+
+		<AdminField label={t('admin.footer.brand.logo_size', 'Logo size')} forId="logo_max_height">
+			<AdminSelect id="logo_max_height" name="logo_max_height" density="compact">
+				{logoHeightOptions.map((option) => (
+					<option value={option.value} selected={footer.logo_max_height === option.value}>
+						{optionLabel('size', option.value, option.label)}
+					</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+	</div>
+</AdminSection>

@@ -1,0 +1,89 @@
+---
+type SurfaceTone = 'surface' | 'soft' | 'plain';
+type SurfacePadding = 'none' | 'sm' | 'md' | 'lg';
+type SurfaceRadius = 'none' | 'panel' | 'card';
+
+interface Props {
+	as?: string;
+	tone?: SurfaceTone;
+	padding?: SurfacePadding;
+	radius?: SurfaceRadius;
+	bordered?: boolean;
+	class?: string;
+	style?: string;
+}
+
+const {
+	as = 'div',
+	tone = 'surface',
+	padding = 'md',
+	radius = 'card',
+	bordered = true,
+	class: className = '',
+	style,
+	...rest
+} = Astro.props;
+
+const Tag = as;
+const classes = ['ui-surface', className].filter(Boolean).join(' ');
+---
+
+<Tag
+	class={classes}
+	style={style}
+	data-tone={tone}
+	data-padding={padding}
+	data-radius={radius}
+	data-bordered={bordered ? 'true' : 'false'}
+	{...rest}
+>
+	<slot />
+</Tag>
+
+<style>
+	.ui-surface {
+		background: var(--ui-surface-bg, var(--site-color-panel));
+		box-sizing: border-box;
+		color: var(--ui-surface-color, var(--site-color-text));
+	}
+
+	.ui-surface[data-tone='soft'] {
+		background: var(--ui-surface-bg, var(--site-color-surface-soft, var(--site-color-bg-soft)));
+	}
+
+	.ui-surface[data-tone='plain'] {
+		background: var(--ui-surface-bg, transparent);
+	}
+
+	.ui-surface[data-bordered='true'] {
+		border: 1px solid var(--ui-surface-border, var(--site-color-border-soft));
+	}
+
+	.ui-surface[data-radius='panel'] {
+		border-radius: var(--site-radius-panel, var(--site-radius-card));
+	}
+
+	.ui-surface[data-radius='card'] {
+		border-radius: var(--site-radius-card);
+	}
+
+	.ui-surface[data-radius='none'] {
+		border-radius: 0;
+	}
+
+	.ui-surface[data-padding='sm'] {
+		padding: calc(var(--site-space-card-padding, 1rem) * 0.75);
+	}
+
+	.ui-surface[data-padding='md'] {
+		padding: var(--site-space-card-padding, 1rem);
+	}
+
+	.ui-surface[data-padding='lg'] {
+		padding: calc(var(--site-space-card-padding, 1rem) * 1.5);
+	}
+
+	.ui-surface[data-padding='none'] {
+		padding: 0;
+	}
+</style>

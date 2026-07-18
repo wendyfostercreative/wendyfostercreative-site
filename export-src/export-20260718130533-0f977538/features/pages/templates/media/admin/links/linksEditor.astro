@@ -1,0 +1,39 @@
+---
+import LinkFields from './linkFields.astro';
+import LinkTemplate from './linkTemplate.astro';
+
+import type { ImageGalleryLink } from '../../schema/types';
+
+type Props = {
+	links: ImageGalleryLink[];
+	t: (key: string, fallback: string) => string;
+};
+
+const { links, t } = Astro.props;
+---
+
+<div
+	class="grid gap-4 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-[var(--site-color-panel)] p-4"
+	data-image-link-title-template={t('admin.pages.edit.templates.media.links.link_title', 'Link {number}')}
+>
+	<div>
+		<div class="text-sm font-medium text-[var(--site-color-text)]">{t('admin.pages.edit.templates.media.links.title', 'Gallery Links')}</div>
+		<p class="mt-1 text-xs text-[var(--site-color-text-muted)]">{t('admin.pages.edit.templates.media.links.description', 'Optional page-level buttons to related media groups.')}</p>
+	</div>
+
+	<div class="grid gap-3" data-image-link-list>
+		{links.map((link, index) => (
+			<LinkFields index={index} link={link} t={t} />
+		))}
+	</div>
+
+	<button
+		class="rounded-[var(--site-radius-button)] border border-[var(--site-color-border-soft)] bg-[var(--site-color-button-bg)] px-3 py-2 text-sm text-[var(--site-color-button-text)]"
+		type="button"
+		data-add-image-link
+	>
+		{t('admin.pages.edit.templates.media.links.add', 'Add gallery link')}
+	</button>
+
+	<LinkTemplate t={t} />
+</div>

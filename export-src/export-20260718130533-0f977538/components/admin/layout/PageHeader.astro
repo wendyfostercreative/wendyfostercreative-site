@@ -1,0 +1,40 @@
+---
+interface Props {
+	title: string;
+	backHref?: string;
+	backLabel?: string;
+	description?: string;
+	compact?: boolean;
+}
+
+const {
+	title,
+	backHref,
+	backLabel = 'Back',
+	description,
+	compact = false,
+} = Astro.props;
+---
+
+<div class="flex items-baseline justify-between gap-6">
+	<div class="min-w-0">
+		<h1 class:list={[
+			'font-semibold text-[var(--site-color-text)]',
+			compact ? 'text-xl' : 'text-3xl tracking-tight',
+		]}>
+			{title}
+		</h1>
+
+		{description && (
+			<p class="mt-2 text-sm text-[var(--site-color-text-muted)]">
+				{description}
+			</p>
+		)}
+	</div>
+
+	{backHref && (
+		<a class="shrink-0 text-sm text-[var(--site-color-text-muted)] underline decoration-[var(--site-color-border)] underline-offset-4 hover:text-[var(--site-color-text)]" href={backHref}>
+			{backLabel}
+		</a>
+	)}
+</div>

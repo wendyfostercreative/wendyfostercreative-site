@@ -1,0 +1,37 @@
+---
+import Button from '../../../../../../components/ui/Button.astro';
+import Input from '../../../../../../components/ui/Input.astro';
+import Textarea from '../../../../../../components/ui/Textarea.astro';
+import PageContainer from '../../../../../../components/public/PageContainer.astro';
+import PublicPanel from '../../../../../../components/public/PublicPanel.astro';
+import SectionHeading from '../../../../../../components/public/SectionHeading.astro';
+import SectionShell from '../../../../../../components/public/SectionShell.astro';
+import type { PageSection } from '../../../../sections/core/types';
+
+type Props = { section: PageSection };
+const { section } = Astro.props as Props;
+const content = (section.content || {}) as Record<string, any>;
+const submitLabel = String(content.submit_label || 'Send message');
+const alignment = section.layout.endsWith('.left') ? 'left' : section.layout.endsWith('.right') ? 'right' : 'center';
+const alignmentClass = alignment === 'left'
+	? 'mr-auto'
+	: alignment === 'right'
+		? 'ml-auto'
+		: 'mx-auto';
+---
+<SectionShell spacing="compact">
+	<PageContainer width="site">
+		<PublicPanel class:list={['grid w-full max-w-[var(--site-content-width)] gap-4', alignmentClass]}>
+			{content.heading || content.body ? (
+				<SectionHeading heading={content.heading} body={content.body} as="h2" size="compact" />
+			) : null}
+
+			<form class="grid gap-3">
+				<label class="grid gap-1 text-sm font-medium">Name<Input type="text" name="name" /></label>
+				<label class="grid gap-1 text-sm font-medium">Email<Input type="email" name="email" /></label>
+				<label class="grid gap-1 text-sm font-medium">Message<Textarea class="min-h-32" name="message" /></label>
+				<Button class="justify-self-start" type="button">{submitLabel}</Button>
+			</form>
+		</PublicPanel>
+	</PageContainer>
+</SectionShell>

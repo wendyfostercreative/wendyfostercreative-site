@@ -1,0 +1,78 @@
+---
+import Button from '../ui/Button.astro';
+
+type ActionAlign = 'left' | 'center' | 'right';
+type Action = {
+	label?: string | null;
+	href?: string | null;
+};
+
+interface Props {
+	primary?: Action | null;
+	secondary?: Action | null;
+	align?: ActionAlign;
+	class?: string;
+}
+
+const {
+	primary,
+	secondary,
+	align = 'left',
+	class: className = '',
+	...rest
+} = Astro.props;
+
+const primaryHref = typeof primary?.href === 'string' ? primary.href.trim() : '';
+const primaryLabel = typeof primary?.label === 'string' ? primary.label.trim() : '';
+const secondaryHref = typeof secondary?.href === 'string' ? secondary.href.trim() : '';
+const secondaryLabel = typeof secondary?.label === 'string' ? secondary.label.trim() : '';
+const hasActions = Boolean((primaryHref && primaryLabel) || (secondaryHref && secondaryLabel));
+const classes = ['public-action-group', className].filter(Boolean).join(' ');
+---
+
+{hasActions ? (
+	<div class={classes} data-align={align} {...rest}>
+		{primaryHref && primaryLabel ? (
+			<Button href={primaryHref} variant="solid" class="public-action-group__button">
+				{primaryLabel}
+			</Button>
+		) : null}
+		{secondaryHref && secondaryLabel ? (
+			<Button href={secondaryHref} variant="text" class="public-action-group__button public-action-group__button--secondary">
+				{secondaryLabel}
+			</Button>
+		) : null}
+	</div>
+) : null}
+
+<style>
+	.public-action-group {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		padding-top: 0.5rem;
+	}
+
+	.public-action-group[data-align='center'] {
+		justify-content: center;
+	}
+
+	.public-action-group[data-align='right'] {
+		justify-content: flex-end;
+	}
+
+	.public-action-group :global(.public-action-group__button) {
+		font-size: 0.875rem;
+		padding: 0.625rem 1.25rem;
+	}
+
+	.public-action-group :global(.public-action-group__button--secondary) {
+		color: var(--site-color-text);
+		text-underline-offset: 0.25rem;
+	}
+
+	.public-action-group :global(.public-action-group__button--secondary:hover) {
+		color: var(--site-color-text-muted);
+		text-decoration: underline;
+	}
+</style>

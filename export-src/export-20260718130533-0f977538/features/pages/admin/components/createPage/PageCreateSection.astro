@@ -1,0 +1,70 @@
+---
+import AdminSection from '../../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../../components/admin/fields/Input.astro';
+import AdminActionRow from '../../../../../components/admin/actions/ActionRow.astro';
+import TemplateCardSelect from './TemplateCardSelect.astro';
+
+import type { CmsTemplateCardDefinition } from '../../../core/templates';
+
+type Props = {
+	templates: CmsTemplateCardDefinition[];
+	openCreate: boolean;
+	t: (key: string, fallback: string) => string;
+};
+
+const { templates, openCreate, t } = Astro.props;
+---
+
+<AdminSection
+	title={t('admin.pages.create.title', 'Create page')}
+	description={t('admin.pages.create.description', 'Start with a page type, then continue in the dedicated page editor for layout and content.')}
+>
+	<details
+		class="border bg-[var(--admin-color-field-bg)] p-4 text-[var(--admin-color-field-text)]"
+		style="border-radius: var(--site-radius-card); border-color: var(--admin-color-field-border);"
+		open={openCreate}
+		data-admin-create-page-details
+	>
+		<summary class="cursor-pointer list-none text-sm font-medium text-[var(--admin-color-field-text)]">
+			{t('admin.pages.create.summary', 'Create new page')}
+		</summary>
+
+		<form method="POST" action="/admin/action/pages/add" class="mt-4 grid gap-4">
+			<AdminField
+				label={t('admin.pages.create.page_type', 'Page type')}
+				forId="template"
+				help={t('admin.pages.create.page_type_help', 'This controls which editor and public renderer the page will use.')}
+			>
+				<TemplateCardSelect
+					fieldName="template"
+					inputIdPrefix="template"
+					templates={templates}
+					required={true}
+				/>
+			</AdminField>
+
+			<AdminField
+				label={t('admin.pages.create.page_title', 'Page title')}
+				forId="title"
+				help={t('admin.pages.create.page_title_help', 'Example: About, Story, Process.')}
+			>
+				<AdminInput id="title" name="title" type="text" placeholder="Story" />
+			</AdminField>
+
+			<AdminField
+				label={t('admin.pages.create.path', 'Path (optional)')}
+				forId="path"
+				help={t('admin.pages.create.path_help', 'You can leave this blank and set it in the editor after creation.')}
+			>
+				<AdminInput id="path" name="path" type="text" placeholder="/about" />
+			</AdminField>
+
+			<AdminActionRow buttonText={t('admin.pages.create.action', 'Create and continue')} statusId="createPageStatus">
+				<a href="/admin/pages" class="text-sm text-[var(--admin-color-field-placeholder)] underline">
+					{t('admin.pages.create.cancel', 'Cancel')}
+				</a>
+			</AdminActionRow>
+		</form>
+	</details>
+</AdminSection>

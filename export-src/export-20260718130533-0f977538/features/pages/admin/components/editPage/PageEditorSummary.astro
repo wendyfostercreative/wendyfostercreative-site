@@ -1,0 +1,32 @@
+---
+import type { CmsPage } from '../../../core/types';
+
+type Props = {
+	page: CmsPage;
+	templateLabel: string;
+	t: (key: string, fallback: string) => string;
+};
+
+const { page, templateLabel, t } = Astro.props;
+---
+
+<div class="grid gap-3 text-sm text-[var(--site-color-text)] sm:grid-cols-2">
+	<div class="grid gap-1">
+		<div class="text-xs font-medium text-[var(--site-color-text-muted)]">{t('admin.pages.edit.summary.template', 'Template')}</div>
+		<div class="font-medium text-[var(--site-color-text)]">{templateLabel}</div>
+	</div>
+	<div class="grid gap-1">
+		<div class="text-xs font-medium text-[var(--site-color-text-muted)]">{t('admin.pages.edit.summary.path', 'Path')}</div>
+		<div class="font-medium text-[var(--site-color-text)]">{page.path}</div>
+	</div>
+	<div class="grid gap-1">
+		<div class="text-xs font-medium text-[var(--site-color-text-muted)]">{t('admin.pages.edit.summary.published', 'Published')}</div>
+		<div class="font-medium text-[var(--site-color-text)]">{page.published ? t('admin.pages.edit.summary.published_value', 'Published') : t('admin.pages.edit.summary.draft_value', 'Draft')}</div>
+	</div>
+	<div class="grid gap-1">
+		<div class="text-xs font-medium text-[var(--site-color-text-muted)]">{t('admin.pages.edit.summary.navigation', 'Navigation')}</div>
+		<div class="font-medium text-[var(--site-color-text)]">
+			{page.show_in_nav ? t('admin.pages.edit.summary.navigation_shown', 'Shown in navigation') : t('admin.pages.edit.summary.navigation_hidden', 'Hidden from navigation')}
+		</div>
+	</div>
+</div>

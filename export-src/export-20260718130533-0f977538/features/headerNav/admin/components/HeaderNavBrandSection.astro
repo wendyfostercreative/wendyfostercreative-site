@@ -1,0 +1,90 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminSelect from '../../../../components/admin/fields/Select.astro';
+
+import type { HeaderNavSettings } from '../../core/types';
+import {
+	booleanOptions,
+	brandFontSizeOptions,
+	fontWeightOptions,
+	gapOptions,
+	letterSpacingOptions,
+	logoHeightOptions,
+} from '../forms/headerNavFields';
+
+type Props = {
+	headerNav: HeaderNavSettings;
+	t: (key: string, fallback: string) => string;
+};
+
+const { headerNav, t } = Astro.props;
+function optionLabel(group: string, value: string, fallback: string): string {
+	return t(`admin.header_nav.options.${group}.${value}`, fallback);
+}
+---
+<AdminSection title={t('admin.header_nav.brand.title', 'Brand')} description={t('admin.header_nav.brand.description', 'Controls how the logo, site name, and brand text appear.')}>
+	<div class="grid gap-5">
+		<div class="grid gap-4 sm:grid-cols-2">
+			<AdminField label={t('admin.header_nav.brand.show_site_name_with_logo', 'Show site name with logo')} forId="show_site_name_with_logo">
+				<AdminSelect id="show_site_name_with_logo" name="show_site_name_with_logo" density="compact">
+					{booleanOptions.map((option) => (
+						<option value={option.value} selected={String(headerNav.show_site_name_with_logo) === option.value}>
+							{optionLabel('boolean', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.brand.brand_font_size', 'Brand font size')} forId="brand_font_size">
+				<AdminSelect id="brand_font_size" name="brand_font_size" density="compact">
+					{brandFontSizeOptions.map((option) => (
+						<option value={option.value} selected={headerNav.brand_font_size === option.value}>
+							{optionLabel('size', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.brand.brand_font_weight', 'Brand font weight')} forId="brand_font_weight">
+				<AdminSelect id="brand_font_weight" name="brand_font_weight" density="compact">
+					{fontWeightOptions.map((option) => (
+						<option value={option.value} selected={headerNav.brand_font_weight === option.value}>
+							{optionLabel('font_weight', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.brand.brand_letter_spacing', 'Brand letter spacing')} forId="brand_letter_spacing">
+				<AdminSelect id="brand_letter_spacing" name="brand_letter_spacing" density="compact">
+					{letterSpacingOptions.map((option) => (
+						<option value={option.value} selected={headerNav.brand_letter_spacing === option.value}>
+							{optionLabel('letter_spacing', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.brand.brand_gap', 'Brand gap')} forId="brand_gap">
+				<AdminSelect id="brand_gap" name="brand_gap" density="compact">
+					{gapOptions.map((option) => (
+						<option value={option.value} selected={headerNav.brand_gap === option.value}>
+							{optionLabel('gap', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.brand.logo_size', 'Logo size')} forId="brand_max_logo_height">
+				<AdminSelect id="brand_max_logo_height" name="brand_max_logo_height" density="compact">
+					{logoHeightOptions.map((option) => (
+						<option value={option.value} selected={headerNav.brand_max_logo_height === option.value}>
+							{optionLabel('size', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+		</div>
+	</div>
+</AdminSection>

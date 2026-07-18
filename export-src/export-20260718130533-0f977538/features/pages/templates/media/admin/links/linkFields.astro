@@ -1,0 +1,34 @@
+---
+import AdminField from '../../../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../../../components/admin/fields/Input.astro';
+
+import type { ImageGalleryLink } from '../../schema/types';
+
+type Props = {
+	index: number | string;
+	link: ImageGalleryLink;
+	t: (key: string, fallback: string) => string;
+};
+
+const { index, link, t } = Astro.props;
+const title = typeof index === 'number'
+	? t('admin.pages.edit.templates.media.links.link_title', 'Link {number}').replace('{number}', String(index + 1))
+	: t('admin.pages.edit.templates.media.links.link_title_fallback', 'Link');
+---
+
+<div class="rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-4" data-image-link>
+	<div class="mb-4 flex items-center justify-between gap-3">
+		<div class="text-sm font-medium text-[var(--site-color-text)]" data-image-link-title>{title}</div>
+		<button class="text-sm text-[var(--site-color-text)] underline" type="button" data-remove-image-link>{t('admin.pages.edit.templates.media.links.remove', 'Remove')}</button>
+	</div>
+
+	<div class="grid gap-4 md:grid-cols-2">
+		<AdminField label={t('admin.pages.edit.templates.media.links.label', 'Label')} forId={`image-link-${index}-label`}>
+			<AdminInput id={`image-link-${index}-label`} value={link.label} placeholder={t('admin.pages.edit.templates.media.links.label_placeholder', 'Necklaces')} data-image-link-field="label" />
+		</AdminField>
+
+		<AdminField label={t('admin.pages.edit.templates.media.links.url', 'URL')} forId={`image-link-${index}-url`}>
+			<AdminInput id={`image-link-${index}-url`} value={link.url} placeholder={t('admin.pages.edit.templates.media.links.url_placeholder', '/jewelry/earrings')} data-image-link-field="url" />
+		</AdminField>
+	</div>
+</div>

@@ -1,0 +1,14 @@
+---
+import PageSeoSection from '../../../admin/components/editPage/PageSeoSection.astro';
+
+import type { CmsPage } from '../../../core/types';
+
+type Props = {
+	page: CmsPage;
+	t: (key: string, fallback: string) => string;
+};
+
+const { page, t } = Astro.props;
+---
+
+<PageSeoSection page={page} t={t} />

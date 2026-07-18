@@ -1,0 +1,66 @@
+---
+type ContainerWidth = 'site' | 'content' | 'form' | 'none';
+type ContainerPadding = 'none' | 'sm' | 'md' | 'lg';
+
+interface Props {
+	as?: string;
+	width?: ContainerWidth;
+	padding?: ContainerPadding;
+	class?: string;
+}
+
+const {
+	as = 'div',
+	width = 'site',
+	padding = 'md',
+	class: className = '',
+	...rest
+} = Astro.props;
+
+const Tag = as;
+const classes = ['ui-container', className].filter(Boolean).join(' ');
+---
+
+<Tag class={classes} data-width={width} data-padding={padding} {...rest}>
+	<slot />
+</Tag>
+
+<style>
+	.ui-container {
+		box-sizing: border-box;
+		margin-inline: auto;
+		width: 100%;
+	}
+
+	.ui-container[data-width='site'] {
+		max-width: var(--site-container-width);
+	}
+
+	.ui-container[data-width='content'] {
+		max-width: var(--site-content-width);
+	}
+
+	.ui-container[data-width='form'] {
+		max-width: var(--site-form-width, var(--site-content-width));
+	}
+
+	.ui-container[data-width='none'] {
+		max-width: none;
+	}
+
+	.ui-container[data-padding='sm'] {
+		padding-inline: calc(var(--site-space-page-gutter, 1.5rem) * 0.5);
+	}
+
+	.ui-container[data-padding='md'] {
+		padding-inline: var(--site-space-page-gutter, 1.5rem);
+	}
+
+	.ui-container[data-padding='lg'] {
+		padding-inline: calc(var(--site-space-page-gutter, 1.5rem) * 1.5);
+	}
+
+	.ui-container[data-padding='none'] {
+		padding-inline: 0;
+	}
+</style>

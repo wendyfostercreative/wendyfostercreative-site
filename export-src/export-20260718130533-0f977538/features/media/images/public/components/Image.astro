@@ -1,0 +1,78 @@
+---
+import type { ImageMediaViewItem } from '../../core/types';
+
+interface Props {
+	items: ImageMediaViewItem[];
+	layout?: 'grid' | 'masonry' | 'list' | 'featured-grid';
+	columns?: 2 | 3 | 4;
+	showTitle?: boolean;
+	showDescription?: boolean;
+	showPrice?: boolean;
+}
+
+const {
+	items,
+	layout = 'grid',
+	columns = 3,
+	showTitle = true,
+	showDescription = false,
+	showPrice = false,
+} = Astro.props as Props;
+
+const gridColumnsClass = columns === 2
+	? 'md:grid-cols-2'
+	: columns === 4
+		? 'md:grid-cols-3 lg:grid-cols-4'
+		: 'md:grid-cols-3';
+
+const wrapperClass = layout === 'list'
+	? 'grid gap-4'
+	: layout === 'featured-grid'
+		? `grid grid-cols-1 gap-4 sm:grid-cols-2 ${gridColumnsClass}`
+		: `grid grid-cols-2 gap-4 ${gridColumnsClass}`;
+
+function thumbnailImageClass(item: ImageMediaViewItem): string {
+	const base = 'transition group-hover:opacity-90';
+	if (layout === 'list') return `h-40 w-full object-cover sm:h-full ${base}`;
+	if (item.detail_display_preset === 'vertical') return `mx-auto h-full max-w-[62%] object-contain ${base}`;
+	if (item.detail_display_preset === 'horizontal') return `mx-auto max-h-[62%] w-full object-contain ${base}`;
+	return `h-full w-full object-cover ${base}`;
+}
+---
+
+<div class={wrapperClass}>
+	{items.map((item, index) => (
+		<a
+			href={item.public_href ?? '#'}
+			class:list={[
+				'group block overflow-hidden rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-[var(--site-color-panel)] text-[var(--site-color-text)]',
+				layout === 'list' && 'grid gap-4 sm:grid-cols-[180px_1fr]',
+				layout === 'featured-grid' && index === 0 && 'sm:col-span-2',
+			]}
+		>
+			<div class:list={[
+				'flex w-full items-center justify-center bg-[var(--site-color-bg)]',
+				layout === 'list' ? 'h-40 sm:h-full' : 'aspect-square',
+			]}>
+				<img
+					src={item.thumb_path ?? item.file_path}
+					alt={item.title ?? ''}
+					class={thumbnailImageClass(item)}
+				/>
+			</div>
+			{showTitle || showDescription || showPrice ? (
+				<div class="grid gap-1 p-3">
+					{showTitle && item.title ? (
+						<div class="text-sm font-medium">{item.title}</div>
+					) : null}
+					{showDescription && item.description ? (
+						<p class="text-sm text-[var(--site-color-text-muted)]">{item.description}</p>
+					) : null}
+					{showPrice && item.price ? (
+						<div class="text-sm text-[var(--site-color-text)]">{item.price}</div>
+					) : null}
+				</div>
+			) : null}
+		</a>
+	))}
+</div>

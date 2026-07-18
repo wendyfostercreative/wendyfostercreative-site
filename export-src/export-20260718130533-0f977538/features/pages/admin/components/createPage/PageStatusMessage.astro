@@ -1,0 +1,22 @@
+---
+import AdminAlert from '../../../../../components/admin/alerts/Alert.astro';
+
+type Props = {
+	statusMessage?: string;
+	errorMessage?: string;
+};
+
+const { statusMessage = '', errorMessage = '' } = Astro.props;
+---
+
+{errorMessage && (
+	<AdminAlert variant="error">
+		{errorMessage}
+	</AdminAlert>
+)}
+
+{!errorMessage && statusMessage && (
+	<AdminAlert variant="success">
+		{statusMessage}
+	</AdminAlert>
+)}

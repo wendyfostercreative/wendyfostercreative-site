@@ -1,0 +1,88 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminSelect from '../../../../components/admin/fields/Select.astro';
+import Button from '../../../../components/ui/Button.astro';
+
+import type { SiteConfig } from '../../core/types';
+import {
+	DEFAULT_SITE_FONT_KEY,
+	resolveSiteFontKey,
+	SITE_FONT_OPTIONS,
+} from '../../core/theme';
+
+type Props = {
+	site: SiteConfig;
+	t: (key: string, fallback: string) => string;
+};
+
+const { site, t } = Astro.props;
+const themeFonts = site.theme.fonts ?? {};
+
+function primaryFontValue(value: string | null | undefined): string {
+	return resolveSiteFontKey(value) ?? DEFAULT_SITE_FONT_KEY;
+}
+
+function optionalFontValue(value: string | null | undefined): string {
+	return resolveSiteFontKey(value) ?? '';
+}
+---
+
+<AdminSection title={t('admin.site_config.typography.title', 'Typography')} description={t('admin.site_config.typography.description', 'Set the primary site font first, then optional brand and nav fonts. Blank brand or nav fonts inherit the primary font.')}> 
+	<AdminField
+		label={t('admin.site_config.typography.primary_font', 'Primary font')}
+		forId="primary_font"
+		help={t('admin.site_config.typography.primary_font_help', 'Used for body text and headings across the site.')}
+	>
+		<AdminSelect id="primary_font" name="primary_font">
+			{SITE_FONT_OPTIONS.map((option) => (
+				<option value={option.key} selected={primaryFontValue(themeFonts.primary ?? site.theme.primary_font ?? '') === option.key}>
+					{option.label}
+				</option>
+			))}
+		</AdminSelect>
+	</AdminField>
+
+	<AdminField
+		label={t('admin.site_config.typography.brand_font', 'Brand font (optional)')}
+		forId="brand_font"
+		help={t('admin.site_config.typography.brand_font_help', 'Used when rendering the site name as text. Leave blank to inherit the primary font.')}
+	>
+		<AdminSelect id="brand_font" name="brand_font">
+			<option value="" selected={optionalFontValue(themeFonts.brand ?? site.brand.site_name_font ?? '') === ''}>
+				{t('admin.site_config.typography.inherit_primary', 'Inherit primary')}
+			</option>
+			{SITE_FONT_OPTIONS.map((option) => (
+				<option value={option.key} selected={optionalFontValue(themeFonts.brand ?? site.brand.site_name_font ?? '') === option.key}>
+					{option.label}
+				</option>
+			))}
+		</AdminSelect>
+	</AdminField>
+
+	<AdminField
+		label={t('admin.site_config.typography.nav_font', 'Nav font (optional)')}
+		forId="nav_font"
+		help={t('admin.site_config.typography.nav_font_help', 'Used for header nav items. Leave blank to inherit the primary font.')}
+	>
+		<AdminSelect id="nav_font" name="nav_font">
+			<option value="" selected={optionalFontValue(themeFonts.nav ?? '') === ''}>
+				{t('admin.site_config.typography.inherit_primary', 'Inherit primary')}
+			</option>
+			{SITE_FONT_OPTIONS.map((option) => (
+				<option value={option.key} selected={optionalFontValue(themeFonts.nav ?? '') === option.key}>
+					{option.label}
+				</option>
+			))}
+		</AdminSelect>
+	</AdminField>
+
+	<div class="grid gap-2">
+		<p class="text-sm text-[var(--site-color-text-muted)]">
+			Review the card. If it looks right, click APPLY to continue to Theme.
+		</p>
+		<div class="site-config-typography-apply flex items-center gap-3">
+			<Button type="button">APPLY</Button>
+		</div>
+	</div>
+</AdminSection>

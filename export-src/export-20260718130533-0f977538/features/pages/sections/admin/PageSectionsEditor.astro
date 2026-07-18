@@ -1,0 +1,32 @@
+---
+import { normalizePageSectionsContent } from '../core/normalize';
+import type { PageSectionRegistry } from '../core/types';
+import ImagePathPicker from '../../../media/images/admin/components/ImagePathPicker.astro';
+import SectionLibraryShell from './SectionLibraryShell.astro';
+import SectionEditorShell from './SectionEditorShell.astro';
+
+type Props = { content: unknown; registry: PageSectionRegistry; template: string };
+const { content, registry, template } = Astro.props as Props;
+const normalized = normalizePageSectionsContent(content);
+const registryForClient = Object.fromEntries(Object.values(registry).map((definition) => [definition.type, {
+	type: definition.type,
+	label: definition.label,
+	description: definition.description,
+	defaultLayout: definition.defaultLayout,
+	layouts: definition.layouts,
+	defaultContent: definition.defaultContent(),
+}])) as Record<string, unknown>;
+---
+<div class="grid gap-6" data-page-sections-editor data-section-template={template} data-section-registry={JSON.stringify(registryForClient)}>
+	<textarea class="hidden" id="contentJson" name="content_json">{JSON.stringify(normalized, null, 2)}</textarea>
+	<div class="hidden" aria-hidden="true">
+		<ImagePathPicker fieldName="__unused_section_image_picker" fieldValue="" />
+	</div>
+	<SectionLibraryShell registry={registry} />
+	<SectionEditorShell sections={normalized.sections} registry={registry} template={template} />
+</div>
+
+<script>
+	import { initPageSectionsEditor } from './pageSectionsEditorClient';
+	initPageSectionsEditor();
+</script>

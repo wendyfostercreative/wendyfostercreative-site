@@ -1,0 +1,43 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminSelect from '../../../../components/admin/fields/Select.astro';
+
+import type { HeaderNavSettings } from '../../core/types';
+import { booleanOptions, borderThicknessOptions } from '../forms/headerNavFields';
+
+type Props = {
+	headerNav: HeaderNavSettings;
+	t: (key: string, fallback: string) => string;
+};
+
+const { headerNav, t } = Astro.props;
+function optionLabel(group: string, value: string, fallback: string): string {
+	return t(`admin.header_nav.options.${group}.${value}`, fallback);
+}
+---
+<AdminSection title={t('admin.header_nav.border.title', 'Border')} description={t('admin.header_nav.border.description', 'Controls the optional bottom border below the header.')}>
+	<div class="grid gap-5">
+		<div class="grid gap-4 sm:grid-cols-2">
+			<AdminField label={t('admin.header_nav.border.show_border', 'Show border')} forId="show_bottom_border">
+				<AdminSelect id="show_bottom_border" name="show_bottom_border" density="compact">
+					{booleanOptions.map((option) => (
+						<option value={option.value} selected={String(headerNav.show_bottom_border) === option.value}>
+							{optionLabel('boolean', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.border.border_thickness', 'Border thickness')} forId="border_thickness">
+				<AdminSelect id="border_thickness" name="border_thickness" density="compact">
+					{borderThicknessOptions.map((option) => (
+						<option value={option.value} selected={headerNav.border_thickness === option.value}>
+							{optionLabel('border_thickness', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+		</div>
+	</div>
+</AdminSection>

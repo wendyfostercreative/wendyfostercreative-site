@@ -1,0 +1,77 @@
+---
+import AdminField from '../../../../../../components/admin/fields/Field.astro';
+import AdminSelect from '../../../../../../components/admin/fields/Select.astro';
+
+import type { ImageGallerySource } from '../../schema/types';
+import type { MediaCollectionOption } from '../../../../../media/core/collections';
+import type { SiteProfile } from '../../../../../siteProfile/core/types';
+
+type Props = {
+	source: ImageGallerySource;
+	collectionOptions?: MediaCollectionOption[];
+	siteProfile?: SiteProfile;
+	t: (key: string, fallback: string) => string;
+};
+
+const { source, collectionOptions = [], siteProfile, t } = Astro.props;
+
+function uniqueOptions(values: string[], currentValue = ''): string[] {
+	const seen = new Set<string>();
+	return [...values, currentValue]
+		.map((value) => String(value || '').trim())
+		.filter(Boolean)
+		.filter((value) => {
+			if (seen.has(value)) return false;
+			seen.add(value);
+			return true;
+		});
+}
+
+function labelize(value: string): string {
+	return value.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+const roleOptions = uniqueOptions(siteProfile?.media_vocabulary.roles ?? [], source.media_role);
+const collectionChoices = collectionOptions.length
+	? uniqueOptions(collectionOptions.map((option) => option.value), source.collection).map((value) => {
+		const option = collectionOptions.find((candidate) => candidate.value === value);
+		return option ?? { value, label: labelize(value), path: '' };
+	})
+	: uniqueOptions(siteProfile?.media_vocabulary.collections ?? [], source.collection).map((value) => ({ value, label: labelize(value), path: '' }));
+---
+
+<div class="grid gap-4 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-4">
+	<div>
+		<div class="text-sm font-medium text-[var(--site-color-text)]">{t('admin.pages.edit.templates.media.source.title', 'Gallery Source')}</div>
+		<p class="mt-1 text-xs text-[var(--site-color-text-muted)]">{t('admin.pages.edit.templates.media.source.description', 'Choose the media role and gallery page collection this Media page displays.')}</p>
+	</div>
+
+	<div class="grid gap-4 md:grid-cols-2">
+		<AdminField label={t('admin.pages.edit.templates.media.source.mode', 'Mode')} forId="images-source-mode" class="hidden">
+			<AdminSelect id="images-source-mode" data-image-template-field="source.mode">
+				<option value="filtered" selected>{t('admin.pages.edit.templates.media.source.mode_filtered', 'Filtered collection')}</option>
+			</AdminSelect>
+		</AdminField>
+
+		<AdminField label={t('admin.pages.edit.templates.media.source.media_role', 'Media role')} forId="images-source-media-role">
+			<AdminSelect id="images-source-media-role" data-image-template-field="source.media_role">
+				{roleOptions.map((value) => (
+					<option value={value} selected={source.media_role === value}>{labelize(value)}</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+
+		<AdminField label={t('admin.pages.edit.templates.media.source.collection', 'Gallery page collection')} forId="images-source-collection" help={t('admin.pages.edit.templates.media.source.collection_help', 'This should match the Media page path slug, such as work for /work.')}>
+			<AdminSelect id="images-source-collection" data-image-template-field="source.collection">
+				<option value="" selected={!source.collection}>{t('admin.pages.edit.templates.media.source.any_collection', 'Choose a gallery page')}</option>
+				{collectionChoices.map((option) => (
+					<option value={option.value} selected={source.collection === option.value}>{option.label}</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+	</div>
+
+	<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-panel)] p-3 text-xs text-[var(--site-color-text-muted)]">
+		{t('admin.pages.edit.templates.media.source.profile_note', 'Collections are gallery-page keys. Categories stay separate as secondary groupings inside a gallery.')}
+	</div>
+</div>

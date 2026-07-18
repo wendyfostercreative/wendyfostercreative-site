@@ -1,0 +1,45 @@
+---
+import Button from '../../ui/Button.astro';
+
+type ButtonType = 'submit' | 'button' | 'reset';
+type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'text';
+type ButtonTone = 'accent' | 'neutral' | 'danger';
+
+interface Props {
+	buttonText?: string;
+	statusId?: string;
+	buttonType?: ButtonType;
+	buttonVariant?: ButtonVariant;
+	buttonTone?: ButtonTone;
+	class?: string;
+	statusClass?: string;
+	wrap?: boolean;
+}
+
+const {
+	buttonText = 'Save',
+	statusId = 'status',
+	buttonType = 'submit',
+	buttonVariant = 'solid',
+	buttonTone = 'accent',
+	class: className = '',
+	statusClass = '',
+	wrap = true,
+	...rest
+} = Astro.props;
+---
+
+<div
+	class:list={[
+		'admin-action-row flex items-center gap-3',
+		wrap && 'flex-wrap',
+		className,
+	]}
+	{...rest}
+>
+	<Button type={buttonType} variant={buttonVariant} tone={buttonTone}>
+		{buttonText}
+	</Button>
+	<span id={statusId} class:list={['text-sm text-[var(--site-color-text-muted)]', statusClass]}></span>
+	<slot />
+</div>

@@ -1,0 +1,11 @@
+---
+import Button from '../../../../components/ui/Button.astro';
+
+type Props = { index: number; isFirst: boolean; isLast: boolean };
+const { index, isFirst, isLast } = Astro.props as Props;
+---
+<div class="flex flex-wrap gap-2">
+	<Button type="button" variant="outline" tone="neutral" class="px-2 py-1 text-xs" data-section-move="up" disabled={isFirst}>Move up</Button>
+	<Button type="button" variant="outline" tone="neutral" class="px-2 py-1 text-xs" data-section-move="down" disabled={isLast}>Move down</Button>
+	<Button type="button" variant="outline" tone="danger" class="px-2 py-1 text-xs text-[var(--site-color-danger)]" data-section-delete>Delete</Button>
+</div>

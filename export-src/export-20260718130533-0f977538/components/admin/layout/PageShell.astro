@@ -1,0 +1,49 @@
+---
+import Container from '../../ui/Container.astro';
+
+type PageShellWidth = 'form' | 'content' | 'dashboard' | 'full';
+
+interface Props {
+	width?: PageShellWidth;
+	class?: string;
+}
+
+const { width = 'content', class: className = '', ...rest } = Astro.props;
+const classes = ['admin-page-shell', 'py-6', className].filter(Boolean).join(' ');
+---
+
+<div class={classes} data-width={width} {...rest}>
+	<Container width="none">
+		<div class="admin-page-shell__frame grid gap-6">
+			<slot />
+		</div>
+	</Container>
+</div>
+
+<style>
+	.admin-page-shell {
+		--admin-page-shell-content-width: 56rem;
+		--admin-page-shell-form-width: var(--site-form-width, 42rem);
+		--admin-page-shell-max-width: var(--admin-page-shell-content-width);
+	}
+
+	.admin-page-shell[data-width='form'] {
+		--admin-page-shell-max-width: var(--admin-page-shell-form-width);
+	}
+
+	.admin-page-shell[data-width='content'],
+	.admin-page-shell[data-width='dashboard'] {
+		--admin-page-shell-max-width: var(--admin-page-shell-content-width);
+	}
+
+	.admin-page-shell[data-width='full'] {
+		--admin-page-shell-max-width: none;
+	}
+
+	.admin-page-shell__frame {
+		box-sizing: border-box;
+		margin-inline: auto;
+		max-width: var(--admin-page-shell-max-width);
+		width: 100%;
+	}
+</style>

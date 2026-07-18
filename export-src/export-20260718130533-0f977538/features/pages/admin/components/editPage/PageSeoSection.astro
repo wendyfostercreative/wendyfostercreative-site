@@ -1,0 +1,41 @@
+---
+import AdminSection from '../../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../../components/admin/fields/Input.astro';
+import AdminTextarea from '../../../../../components/admin/fields/Textarea.astro';
+
+import type { CmsPage } from '../../../core/types';
+
+type Props = {
+	page: CmsPage;
+	t: (key: string, fallback: string) => string;
+};
+
+const { page, t } = Astro.props;
+---
+
+<AdminSection
+	title={t('admin.pages.edit.seo.title', 'SEO')}
+	description={t('admin.pages.edit.seo.description', 'Optional search metadata. Fill this in after the page content is mostly settled.')}
+>
+	<AdminField
+		label={t('admin.pages.edit.seo.seo_title', 'SEO title')}
+		forId="seo_title"
+		help={t('admin.pages.edit.seo.seo_title_help', 'Optional title for search results and browser tabs. Leave blank to use the page title.')}
+	>
+		<AdminInput id="seo_title" name="seo_title" type="text" value={page.seo_title ?? ''} />
+	</AdminField>
+
+	<AdminField
+		label={t('admin.pages.edit.seo.seo_description', 'SEO description')}
+		forId="seo_description"
+		help={t('admin.pages.edit.seo.seo_description_help', 'Short summary for search results. Keep it plain and specific.')}
+	>
+		<AdminTextarea
+			id="seo_description"
+			name="seo_description"
+			rows={4}
+			value={page.seo_description ?? ''}
+		/>
+	</AdminField>
+</AdminSection>

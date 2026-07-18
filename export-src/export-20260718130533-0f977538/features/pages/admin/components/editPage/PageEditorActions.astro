@@ -1,0 +1,22 @@
+---
+import AdminActionRow from '../../../../../components/admin/actions/ActionRow.astro';
+import Button from '../../../../../components/ui/Button.astro';
+
+type Props = {
+	t: (key: string, fallback: string) => string;
+};
+
+const { t } = Astro.props;
+---
+
+<AdminActionRow buttonText={t('admin.pages.edit.actions.save', 'Save')} statusId="pagesStatus" class="justify-between">
+	<Button
+		type="submit"
+		variant="text"
+		tone="danger"
+		formaction="/admin/action/pages/delete"
+		formmethod="POST"
+	>
+		{t('admin.pages.edit.actions.delete', 'Delete')}
+	</Button>
+</AdminActionRow>

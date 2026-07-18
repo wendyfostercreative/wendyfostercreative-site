@@ -1,0 +1,25 @@
+---
+import Container from '../ui/Container.astro';
+
+type ContainerWidth = 'site' | 'content' | 'form' | 'none';
+type ContainerPadding = 'none' | 'sm' | 'md' | 'lg';
+
+interface Props {
+	as?: string;
+	width?: ContainerWidth;
+	padding?: ContainerPadding;
+	class?: string;
+}
+
+const {
+	as = 'div',
+	width = 'site',
+	padding = 'md',
+	class: className = '',
+	...rest
+} = Astro.props;
+---
+
+<Container as={as} width={width} padding={padding} class={className} {...rest}>
+	<slot />
+</Container>

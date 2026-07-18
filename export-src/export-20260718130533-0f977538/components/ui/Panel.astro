@@ -1,0 +1,9 @@
+---
+import Surface from './Surface.astro';
+
+const { class: className = '', ...rest } = Astro.props;
+---
+
+<Surface class={className} {...rest}>
+	<slot />
+</Surface>

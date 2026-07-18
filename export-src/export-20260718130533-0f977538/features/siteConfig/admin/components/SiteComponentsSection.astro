@@ -1,0 +1,51 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../components/admin/fields/Input.astro';
+import Button from '../../../../components/ui/Button.astro';
+
+import type { SiteThemeLayoutKey, SiteThemeRadiusKey } from '../forms/themeFields';
+
+type ThemeField<Key extends string> = {
+	key: Key;
+	label: string;
+	name: string;
+	id: string;
+	value: string;
+};
+
+type Props = {
+	layoutFields: Array<ThemeField<SiteThemeLayoutKey>>;
+	radiusFields: Array<ThemeField<SiteThemeRadiusKey>>;
+	t: (key: string, fallback: string) => string;
+};
+
+const { layoutFields, radiusFields, t } = Astro.props;
+---
+
+<AdminSection
+	title={t('admin.site_config.components.title', 'Components')}
+	description={t('admin.site_config.components.description', 'Control shared component sizing and corner radius for cards, buttons, and form fields.')}
+>
+	<div class="grid gap-4 sm:grid-cols-2">
+		{layoutFields.map((field) => (
+			<AdminField label={field.label} forId={field.id}>
+				<AdminInput id={field.id} name={field.name} value={field.value} />
+			</AdminField>
+		))}
+		{radiusFields.map((field) => (
+			<AdminField label={field.label} forId={field.id}>
+				<AdminInput id={field.id} name={field.name} value={field.value} />
+			</AdminField>
+		))}
+	</div>
+
+	<div class="grid gap-2">
+		<p class="text-sm text-[var(--site-color-text-muted)]">
+			Review the card. If it looks right, click APPLY to continue to SEO.
+		</p>
+		<div class="site-config-components-apply flex items-center gap-3">
+			<Button type="button">APPLY</Button>
+		</div>
+	</div>
+</AdminSection>

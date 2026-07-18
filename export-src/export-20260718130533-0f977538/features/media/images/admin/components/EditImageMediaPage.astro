@@ -1,0 +1,316 @@
+---
+import AdminPageHeader from '../../../../../components/admin/layout/PageHeader.astro';
+import AdminPageShell from '../../../../../components/admin/layout/PageShell.astro';
+import AdminCard from '../../../../../components/admin/cards/Card.astro';
+import AdminField from '../../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../../components/admin/fields/Input.astro';
+import AdminSelect from '../../../../../components/admin/fields/Select.astro';
+import AdminTextarea from '../../../../../components/admin/fields/Textarea.astro';
+import AdminToggleRow from '../../../../../components/admin/fields/ToggleRow.astro';
+import AdminActionRow from '../../../../../components/admin/actions/ActionRow.astro';
+import Button from '../../../../../components/ui/Button.astro';
+
+import type { MediaCollectionOption } from '../../../core/collections';
+import type { AdminMediaImageItem } from '../../../core/types';
+import type { SiteProfile } from '../../../../siteProfile/core/types';
+
+type Props = {
+	item: AdminMediaImageItem | null;
+	fileKey: string;
+	cacheBust?: string;
+	collectionOptions?: MediaCollectionOption[];
+	siteProfile?: SiteProfile;
+	t: (key: string, fallback: string) => string;
+};
+
+const { item, fileKey, cacheBust = '', collectionOptions = [], siteProfile, t } = Astro.props;
+
+function uniqueOptions(values: string[], currentValue = ''): string[] {
+	const seen = new Set<string>();
+	return [...values, currentValue]
+		.map((value) => String(value || '').trim())
+		.filter(Boolean)
+		.filter((value) => {
+			if (seen.has(value)) return false;
+			seen.add(value);
+			return true;
+		});
+}
+
+function labelize(value: string): string {
+	return value.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function displayValue(value: string | number | null | undefined): string {
+	const str = String(value ?? '').trim();
+	return str || '—';
+}
+
+function resolutionLabel(item: AdminMediaImageItem): string {
+	const width = Number(item.width || 0);
+	const height = Number(item.height || 0);
+	return width > 0 && height > 0 ? `${width} x ${height}` : '—';
+}
+
+function thumbnailResolutionLabel(item: AdminMediaImageItem): string {
+	const width = Number(item.width || 0);
+	const height = Number(item.height || 0);
+	if (!item.thumb || item.thumb === item.webp || width <= 0 || height <= 0) return '—';
+	if (width <= 400) return `${width} x ${height}`;
+	return `about 400 x ${Math.round((height / width) * 400)}`;
+}
+
+function fileName(path: string | null | undefined): string {
+	const value = String(path || '').trim();
+	return value ? value.split('/').filter(Boolean).pop() || value : '—';
+}
+
+function usedVariantLabel(item: AdminMediaImageItem): string {
+	return item.category === 'thumbnail_grid' && item.thumb && item.thumb !== item.webp ? 'Thumbnail' : 'Display image';
+}
+
+function variantHelp(item: AdminMediaImageItem): string {
+	if (item.category === 'thumbnail_grid' && item.thumb && item.thumb !== item.webp) {
+		return 'This thumbnail grid uses the generated thumbnail variant for faster display. The main image remains the stored source asset here.';
+	}
+	return 'The main image is the stored display asset. A thumbnail may also be generated for previews or compact section layouts.';
+}
+
+function contextLabel(mediaRole: string | null | undefined): string {
+	const role = String(mediaRole || '').trim();
+	if (role === 'site_logo') return 'Branding logo asset';
+	if (role === 'home_image') return 'Uploaded for Home sections';
+	if (role === 'content_image') return 'Uploaded for Content sections';
+	if (role === 'contact_image') return 'Uploaded for Contact sections';
+	if (role === 'media_image') return 'Gallery/library asset';
+	return 'Shared media asset';
+}
+
+function contextHelp(mediaRole: string | null | undefined): string {
+	const role = String(mediaRole || '').trim();
+	if (role === 'media_image') return 'This is a flexible gallery asset. Collection and category can be edited for Media page filtering.';
+	if (role === 'site_logo') return 'This asset belongs to the guided branding/logo workflow. Delete is still managed here in Media.';
+	return 'This asset belongs to a guided page section workflow. Collection and category are shown as ownership context; edit the title here when you need a clearer human name.';
+}
+
+const profileMediaRoles = siteProfile?.media_vocabulary.roles ?? [];
+const mediaRoleOptions = uniqueOptions(
+	profileMediaRoles.length ? profileMediaRoles : ['home_image', 'content_image', 'contact_image', 'media_image'],
+	item?.media_role ?? '',
+);
+const currentCollection = item?.collection ?? item?.section ?? '';
+const collectionChoices = collectionOptions.length
+	? uniqueOptions(collectionOptions.map((option: MediaCollectionOption) => option.value), currentCollection).map((value: string) => {
+		const option = collectionOptions.find((candidate: MediaCollectionOption) => candidate.value === value);
+		return option ?? { value, label: labelize(value), path: '' };
+	})
+	: uniqueOptions(siteProfile?.media_vocabulary.collections ?? [], currentCollection).map((value: string) => ({ value, label: labelize(value), path: '' }));
+const mediaRole = item?.media_role ?? '';
+const isMediaLibraryAsset = mediaRole === 'media_image';
+const isConstrainedAsset = Boolean(item) && !isMediaLibraryAsset;
+const detailDisplayPresets = [
+	{ value: 'square', label: 'Square', help: 'Balanced/default detail layout' },
+	{ value: 'vertical', label: 'Vertical', help: 'Image emphasized with details to the right' },
+	{ value: 'horizontal', label: 'Horizontal', help: 'Wide image with details below' },
+];
+---
+
+<AdminPageShell width="content">
+	<AdminPageHeader
+		title={t('admin.media.image_edit.header.title', 'Admin: Edit Image Media')}
+		backHref="/admin/media/images"
+		backLabel={t('admin.media.image_edit.header.back', 'Back to Image Media')}
+		description={t('admin.media.image_edit.header.description', 'Update the saved metadata for this image. You can also replace the image on save.')}
+	/>
+
+	{item ? (
+		<AdminCard as="section">
+			<form method="POST" enctype="multipart/form-data" action="/admin/action/media/save" class="grid gap-6 md:grid-cols-[1fr_1fr]">
+				<input type="hidden" name="file_key" value={fileKey} />
+
+				<div class="grid gap-4">
+					<div class="rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-2">
+						<img
+							class="h-[52vh] w-full rounded-[var(--site-radius-input)] bg-[var(--site-color-panel)] object-contain"
+							alt={item.title || item.file || ''}
+							src={(item.webp || item.thumb || '') + cacheBust}
+						/>
+					</div>
+
+					<div class="text-xs text-[var(--site-color-text-muted)]">Stored main image preview</div>
+				</div>
+
+				<div class="grid gap-4">
+					{isConstrainedAsset ? (
+						<>
+							<input type="hidden" name="media_role" value={item.media_role ?? ''} />
+							<input type="hidden" name="collection" value={item.collection ?? item.section ?? ''} />
+							<input type="hidden" name="category" value={item.category ?? ''} />
+
+							<div class="grid gap-3 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-[var(--site-color-panel)] p-4 text-sm">
+								<div class="font-medium text-[var(--site-color-text)]">{contextLabel(item.media_role)}</div>
+								<p class="text-xs leading-5 text-[var(--site-color-text-muted)]">{contextHelp(item.media_role)}</p>
+								<div class="grid gap-2 text-xs text-[var(--site-color-text-muted)] sm:grid-cols-3">
+									<div><span class="font-medium text-[var(--site-color-text)]">Role:</span> {displayValue(item.media_role ? labelize(item.media_role) : '')}</div>
+									<div><span class="font-medium text-[var(--site-color-text)]">Collection:</span> {displayValue(item.collection ?? item.section)}</div>
+									<div><span class="font-medium text-[var(--site-color-text)]">Category:</span> {displayValue(item.category)}</div>
+								</div>
+							</div>
+
+							<div class="grid gap-3 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-4 text-xs text-[var(--site-color-text-muted)]">
+								<div>
+									<div class="text-sm font-medium text-[var(--site-color-text)]">Generated files</div>
+									<p class="mt-1 leading-5">{variantHelp(item)}</p>
+								</div>
+								<div class="grid gap-2 sm:grid-cols-2">
+									<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-panel)] p-3">
+										<div class="font-medium text-[var(--site-color-text)]">Stored main image</div>
+										<div class="mt-1 break-all">{fileName(item.webp)}</div>
+										<div class="mt-1">Resolution: {resolutionLabel(item)}</div>
+									</div>
+									<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-panel)] p-3">
+										<div class="font-medium text-[var(--site-color-text)]">Generated thumbnail</div>
+										<div class="mt-1 break-all">{fileName(item.thumb)}</div>
+										<div class="mt-1">Resolution: {thumbnailResolutionLabel(item)}</div>
+									</div>
+								</div>
+								<div><span class="font-medium text-[var(--site-color-text)]">Used by this section:</span> {usedVariantLabel(item)}</div>
+								{usedVariantLabel(item) === 'Thumbnail' && item.thumb ? (
+									<details class="rounded-[var(--site-radius-input)] border border-[var(--site-color-border-soft)] bg-white p-2">
+										<summary class="cursor-pointer font-medium text-[var(--site-color-text)]">Preview used image</summary>
+										<img class="mt-2 max-h-40 rounded-[var(--site-radius-input)] bg-[var(--site-color-panel)] object-contain" alt={item.title || item.file || ''} src={item.thumb + cacheBust} />
+									</details>
+								) : null}
+							</div>
+
+							<AdminField label={t('admin.media.image_edit.title', 'Title')} forId="title" help={t('admin.media.image_edit.title_guided_help', 'Primary editable metadata for guided section/logo assets.')}>
+								<AdminInput type="text" id="title" name="title" value={item.title ?? ''} />
+							</AdminField>
+						</>
+					) : (
+						<>
+							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								<AdminField label={t('admin.media.image_edit.media_role', 'Media role')} forId="media_role">
+									<AdminSelect id="media_role" name="media_role">
+										{mediaRoleOptions.map((value) => (
+											<option value={value} selected={item.media_role === value}>
+												{labelize(value)}
+											</option>
+										))}
+									</AdminSelect>
+								</AdminField>
+
+								<AdminField label={t('admin.media.image_edit.collection', 'Gallery page')} forId="collection" help={t('admin.media.image_edit.collection_help', 'Choose the Media page where this image appears.')}>
+									<AdminSelect id="collection" name="collection">
+										<option value="" selected={!item.collection && !item.section}>{t('admin.media.image_edit.no_collection', 'No collection')}</option>
+										{collectionChoices.map((option) => (
+											<option value={option.value} selected={(item.collection ?? item.section) === option.value}>
+												{option.label}
+											</option>
+										))}
+									</AdminSelect>
+								</AdminField>
+							</div>
+
+							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								<AdminField label={t('admin.media.image_edit.category', 'Category')} forId="category">
+									<AdminInput type="text" id="category" name="category" value={item.category ?? ''} />
+								</AdminField>
+
+								<AdminField label={t('admin.media.image_edit.title', 'Title')} forId="title">
+									<AdminInput type="text" id="title" name="title" value={item.title ?? ''} />
+								</AdminField>
+							</div>
+
+							<AdminField label={t('admin.media.image_edit.detail_display_preset', 'Detail page layout')} forId="detail_display_preset" help={t('admin.media.image_edit.detail_display_preset_help', 'Controls the public detail page layout for this media library item.')}>
+								<AdminSelect id="detail_display_preset" name="detail_display_preset">
+									{detailDisplayPresets.map((preset) => (
+										<option value={preset.value} selected={(item.detail_display_preset ?? 'square') === preset.value}>{preset.label} — {preset.help}</option>
+									))}
+								</AdminSelect>
+							</AdminField>
+
+							<AdminField label={t('admin.media.image_edit.description', 'Description')} forId="description">
+								<AdminTextarea
+									id="description"
+									name="description"
+									rows={3}
+									value={item.description ?? ''}
+								/>
+							</AdminField>
+
+							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								<AdminField label={t('admin.media.image_edit.price', 'Price')} forId="price">
+									<AdminInput type="text" id="price" name="price" value={item.price ?? ''} />
+								</AdminField>
+
+								<div class="grid gap-2">
+									<AdminToggleRow
+										id="is_published"
+										name="is_published"
+										label={t('admin.media.image_edit.published', 'Published')}
+										help={t('admin.media.image_edit.published_help', 'Controls public gallery visibility.')}
+										checked={Boolean(item.is_published)}
+										hiddenFalse={false}
+									/>
+
+									<AdminToggleRow
+										id="is_featured"
+										name="is_featured"
+										label={t('admin.media.image_edit.featured', 'Featured')}
+										checked={Boolean(item.is_featured)}
+										hiddenFalse={false}
+									/>
+								</div>
+							</div>
+
+							<AdminField label={t('admin.media.image_edit.tags', 'Tags (comma separated)')} forId="tags">
+								<AdminInput
+									type="text"
+									id="tags"
+									name="tags"
+									value={Array.isArray(item.tags) ? item.tags.join(', ') : ''}
+								/>
+							</AdminField>
+
+							<AdminField label={t('admin.media.image_edit.materials', 'Materials (comma separated)')} forId="materials">
+								<AdminInput
+									type="text"
+									id="materials"
+									name="materials"
+									value={Array.isArray(item.materials) ? item.materials.join(', ') : ''}
+								/>
+							</AdminField>
+						</>
+					)}
+
+					<div class="grid gap-3 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-4">
+						<div class="text-sm font-medium text-[var(--site-color-text)]">Management</div>
+						<AdminField label={t('admin.media.image_edit.replace_image', 'Replace image')} forId="replace_file" help={t('admin.media.image_edit.replace_image_help', 'Max upload size: 10MB')}>
+							<input
+								class="block w-full rounded-[var(--site-radius-input)] border border-[var(--admin-color-field-border)] bg-[var(--admin-color-field-bg)] p-2 text-sm text-[var(--admin-color-field-text)] file:mr-3 file:rounded-[var(--site-radius-button)] file:border-0 file:bg-[var(--site-color-button-bg)] file:px-3 file:py-1.5 file:text-sm file:text-[var(--site-color-button-text)]"
+								id="replace_file"
+								name="file"
+								type="file"
+								accept="image/jpeg,image/png,image/webp"
+							/>
+						</AdminField>
+					</div>
+
+					<div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+						<AdminActionRow buttonText={t('admin.media.image_edit.save', 'Save')} statusId="mediaStatus" />
+					</div>
+				</div>
+			</form>
+
+			<form method="POST" action="/admin/action/media/delete" onsubmit={`return confirm(${JSON.stringify(t('admin.media.image_edit.delete_confirm', 'Delete this media?'))});`}>
+				<input type="hidden" name="file_key" value={fileKey} />
+				<Button variant="text" tone="danger" type="submit">
+					{t('admin.media.image_edit.delete', 'Delete media')}
+				</Button>
+			</form>
+		</AdminCard>
+	) : (
+		<p class="text-sm text-[var(--site-color-text-muted)]">{t('admin.media.image_edit.not_found', 'Not found.')}</p>
+	)}
+</AdminPageShell>

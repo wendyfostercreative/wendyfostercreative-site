@@ -1,0 +1,46 @@
+---
+import { normalizePageSectionsContent } from '../core/normalize';
+import type { PageSectionRegistry } from '../core/types';
+import HeroSection from '../../templates/home/sections/public/HeroSection.astro';
+import ImageLinkTextSection from '../../templates/home/sections/public/ImageLinkTextSection.astro';
+import ContentHeroSection from '../../templates/content/sections/public/ContentHeroSection.astro';
+import RichTextSection from '../../templates/content/sections/public/RichTextSection.astro';
+import ContentImageLinkTextSection from '../../templates/content/sections/public/ImageLinkTextSection.astro';
+import ThumbnailGridSection from '../../templates/content/sections/public/ThumbnailGridSection.astro';
+import ContactIntroSection from '../../templates/contact/sections/public/ContactIntroSection.astro';
+import ContactDetailsSection from '../../templates/contact/sections/public/ContactDetailsSection.astro';
+import ContactFormBlockSection from '../../templates/contact/sections/public/ContactFormBlockSection.astro';
+
+type Props = { content: unknown; registry: PageSectionRegistry; template: string };
+const { content, template } = Astro.props as Props;
+const normalized = normalizePageSectionsContent(content);
+---
+<div class="page-sections-v1 grid w-full">
+	{normalized.sections.map((section) => (
+		template === 'content' && section.type === 'content_hero' ? (
+			<ContentHeroSection section={section} />
+		) : template === 'content' && section.type === 'rich_text' ? (
+			<RichTextSection section={section} />
+		) : template === 'content' && section.type === 'image_link_text' ? (
+			<ContentImageLinkTextSection section={section} />
+		) : template === 'content' && section.type === 'thumbnail_grid' ? (
+			<ThumbnailGridSection section={section} />
+		) : template === 'contact' && section.type === 'contact_intro' ? (
+			<ContactIntroSection section={section} />
+		) : template === 'contact' && section.type === 'contact_details' ? (
+			<ContactDetailsSection section={section} />
+		) : template === 'contact' && section.type === 'contact_form_block' ? (
+			<ContactFormBlockSection section={section} />
+		) : section.type === 'hero' ? (
+			<HeroSection section={section} />
+		) : section.type === 'image_link_text' ? (
+			<ImageLinkTextSection section={section} />
+		) : null
+	))}
+</div>
+
+<style>
+	:global(.page-sections-v1 > section:nth-child(even)) {
+		background: color-mix(in srgb, var(--site-color-panel) 42%, transparent);
+	}
+</style>

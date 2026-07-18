@@ -1,0 +1,71 @@
+---
+import AdminSection from '../../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../../components/admin/fields/Field.astro';
+import CmsStructuredField from '../../../templates/admin/components/CmsStructuredField.astro';
+import ImageTemplateEditor from '../../../templates/media/admin/templateEditor.astro';
+import PageSectionsEditor from '../../../sections/admin/PageSectionsEditor.astro';
+import { contactSectionRegistry } from '../../../templates/contact/sections/registry';
+import { contentSectionRegistry } from '../../../templates/content/sections/registry';
+import { homeSectionRegistry } from '../../../templates/home/sections/registry';
+
+import type { AdminMediaImageItem } from '../../../../media/core/types';
+import type { MediaCollectionOption } from '../../../../media/core/collections';
+import type { SiteProfile } from '../../../../siteProfile/core/types';
+import type { CmsPage, CmsPageTemplateMetadata, CmsTemplateField } from '../../../core/types';
+
+type Props = {
+	page: CmsPage;
+	templateMeta: CmsPageTemplateMetadata;
+	selectedContent: Record<string, unknown>;
+	images: AdminMediaImageItem[];
+	collectionOptions?: MediaCollectionOption[];
+	siteProfile?: SiteProfile;
+	t: (key: string, fallback: string) => string;
+};
+
+const { page, templateMeta, selectedContent, images, collectionOptions = [], siteProfile, t } = Astro.props;
+const sectionTitle = t('admin.pages.edit.content.content_title', 'Content');
+const sectionDescription = templateMeta.description;
+---
+
+{page.template === 'home' ? (
+	<PageSectionsEditor content={page.content} registry={homeSectionRegistry} template="home" />
+) : page.template === 'content' ? (
+	<PageSectionsEditor content={page.content} registry={contentSectionRegistry} template="content" />
+) : page.template === 'contact' ? (
+	<PageSectionsEditor content={page.content} registry={contactSectionRegistry} template="contact" />
+) : (
+	<AdminSection title={sectionTitle} description={sectionDescription}>
+		{page.template === 'media' ? (
+			<ImageTemplateEditor page={page} collectionOptions={collectionOptions} siteProfile={siteProfile} t={t} />
+		) : templateMeta.structured_fields.length > 0 ? (
+			<div class="grid gap-4">
+				{templateMeta.structured_fields.map((field: CmsTemplateField) => {
+					const fieldValue =
+						typeof selectedContent[field.name] === 'string'
+							? String(selectedContent[field.name])
+							: '';
+
+					return (
+						<AdminField label={field.label} forId={`content-${page.template}-${field.name}`}>
+							<CmsStructuredField
+								field={field}
+								fieldValue={fieldValue}
+								inputId={`content-${page.template}-${field.name}`}
+								fieldName={`content.${field.name}`}
+								images={images}
+								t={t}
+							/>
+						</AdminField>
+					);
+				})}
+			</div>
+		) : (
+			<div
+				class="rounded-[var(--site-radius-card)] border border-dashed border-[var(--site-color-border-soft)] bg-white p-4 text-sm text-[var(--site-color-text-muted)]"
+			>
+				{t('admin.pages.edit.content.no_fields', 'This template has no structured fields.')}
+			</div>
+		)}
+	</AdminSection>
+)}

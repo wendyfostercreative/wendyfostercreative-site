@@ -1,0 +1,104 @@
+---
+import PageContainer from '../../../../../../components/public/PageContainer.astro';
+import SectionShell from '../../../../../../components/public/SectionShell.astro';
+import { resolveCmsImageSrc } from '../../../../../media/images/core/paths';
+import type { PageSection } from '../../../../sections/core/types';
+
+type Props = { section: PageSection };
+const { section } = Astro.props as Props;
+const content = (section.content || {}) as Record<string, any>;
+const thumbnailShape = (['natural', 'square', 'wide'].includes(String(content.thumbnail_shape)) ? String(content.thumbnail_shape) : 'square') as 'natural' | 'square' | 'wide';
+const rawThumbnails = Array.isArray(content.thumbnails) ? content.thumbnails : [];
+
+function derivedThumbPath(path: string): string {
+	const value = String(path || '').trim();
+	if (!value || value.includes('/thumbs/') || !value.includes('/webp/')) return '';
+	return value.replace('/webp/', '/thumbs/').replace(/\.webp$/, '-thumb.webp');
+}
+
+const thumbnails = rawThumbnails.slice(0, 10).map((item: unknown) => {
+	const raw = item && typeof item === 'object' ? item as Record<string, any> : {};
+	const image = raw.image && typeof raw.image === 'object' ? raw.image as Record<string, any> : {};
+	const link = raw.link && typeof raw.link === 'object' ? raw.link as Record<string, any> : {};
+	const path = String(image.path || '');
+	const thumbPath = String(image.thumb_path || derivedThumbPath(path));
+	return {
+		src: resolveCmsImageSrc(thumbPath || path),
+		alt: String(image.alt || content.heading || ''),
+		href: typeof link.href === 'string' ? link.href.trim() : '',
+	};
+}).filter((item) => item.src);
+---
+<SectionShell spacing="compact">
+	<PageContainer width="site" class="grid gap-8">
+		{content.heading || content.body ? (
+			<div class="thumbnail-grid__heading">
+				{content.heading ? <h2 class="thumbnail-grid__title">{content.heading}</h2> : null}
+				{content.body ? <p class="thumbnail-grid__body">{content.body}</p> : null}
+			</div>
+		) : null}
+		{thumbnails.length ? (
+			<div class="thumbnail-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" data-thumbnail-shape={thumbnailShape}>
+				{thumbnails.map((thumbnail) => (
+					thumbnail.href ? (
+						<a class="group block" href={thumbnail.href} aria-label={thumbnail.alt || content.heading || 'View thumbnail link'}>
+							<img class="thumbnail-grid__image transition duration-200 group-hover:opacity-85" src={thumbnail.src} alt={thumbnail.alt} loading="lazy" />
+						</a>
+					) : (
+						<img class="thumbnail-grid__image" src={thumbnail.src} alt={thumbnail.alt} loading="lazy" />
+					)
+				))}
+			</div>
+		) : null}
+	</PageContainer>
+</SectionShell>
+
+<style>
+	.thumbnail-grid__heading {
+		display: grid;
+		gap: 1.25rem;
+		max-width: none;
+		width: 100%;
+	}
+
+	.thumbnail-grid__title {
+		font-size: 1.875rem;
+		font-weight: var(--site-font-weight-semibold, 600);
+		letter-spacing: -0.025em;
+		margin: 0;
+		max-width: none;
+	}
+
+	.thumbnail-grid__body {
+		color: var(--site-color-text-muted);
+		font-size: 1rem;
+		line-height: 2;
+		margin: 0;
+		max-width: none;
+		width: 100%;
+	}
+
+	.thumbnail-grid__image {
+		display: block;
+		width: 100%;
+		background: color-mix(in srgb, var(--site-color-panel) 72%, transparent);
+	}
+
+	.thumbnail-grid[data-thumbnail-shape='natural'] .thumbnail-grid__image {
+		aspect-ratio: 1 / 1;
+		height: auto;
+		object-fit: contain;
+	}
+
+	.thumbnail-grid[data-thumbnail-shape='square'] .thumbnail-grid__image {
+		aspect-ratio: 1 / 1;
+		height: auto;
+		object-fit: cover;
+	}
+
+	.thumbnail-grid[data-thumbnail-shape='wide'] .thumbnail-grid__image {
+		aspect-ratio: 16 / 9;
+		height: auto;
+		object-fit: cover;
+	}
+</style>

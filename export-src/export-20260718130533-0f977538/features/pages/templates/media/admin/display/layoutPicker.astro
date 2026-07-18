@@ -1,0 +1,31 @@
+---
+import AdminField from '../../../../../../components/admin/fields/Field.astro';
+
+import LayoutCardSelect from './layoutCards.astro';
+import { IMAGE_GALLERY_LAYOUT_OPTIONS } from '../../layouts';
+import type { ImageGalleryLayout } from '../../schema/types';
+
+type Props = {
+	value?: ImageGalleryLayout;
+	t: (key: string, fallback: string) => string;
+};
+
+const { value = 'grid', t } = Astro.props;
+const layoutOptions = IMAGE_GALLERY_LAYOUT_OPTIONS.map((option) => ({
+	...option,
+	label: t(`admin.pages.edit.templates.media.layout.${option.value}`, option.label),
+	description: t(`admin.pages.edit.templates.media.layout.${option.value}_description`, option.description),
+}));
+---
+
+<AdminField
+	label={t('admin.pages.edit.templates.media.layout.label', 'Gallery layout')}
+	forId="images-display-layout"
+	help={t('admin.pages.edit.templates.media.layout.help', 'Choose how the selected media should be arranged.')}
+>
+	<LayoutCardSelect
+		fieldName="images-display-layout_variant"
+		fieldValue={value}
+		options={layoutOptions}
+	/>
+</AdminField>

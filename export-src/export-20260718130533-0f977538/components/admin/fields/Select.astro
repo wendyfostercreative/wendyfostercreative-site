@@ -1,0 +1,43 @@
+---
+import UiSelect from '../../ui/Select.astro';
+
+interface Props {
+	id: string;
+	name?: string;
+	includeName?: boolean;
+	required?: boolean;
+	disabled?: boolean;
+	density?: 'default' | 'compact';
+	class?: string;
+	style?: string;
+}
+
+const {
+	id,
+	name = id,
+	includeName = true,
+	required = false,
+	disabled = false,
+	density = 'default',
+	class: className = '',
+	style,
+	...rest
+} = Astro.props;
+
+const densityStyle = density === 'compact'
+	? '--site-input-padding-y: 0.375rem; --site-input-padding-x: 0.5rem'
+	: '';
+const resolvedStyle = [densityStyle, style].filter(Boolean).join('; ');
+---
+
+<UiSelect
+	class={className}
+	style={resolvedStyle || undefined}
+	id={id}
+	name={includeName ? name : undefined}
+	required={required}
+	disabled={disabled}
+	{...rest}
+>
+	<slot />
+</UiSelect>

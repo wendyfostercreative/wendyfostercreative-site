@@ -1,0 +1,29 @@
+{
+  "contents": {
+    "cms_application_source_included": false,
+    "github_pages_ready": true,
+    "static_site_root": true
+  },
+  "created_at": "2026-07-18T13:05:36.378175+00:00",
+  "paths": {
+    "dist": "../dist",
+    "repo": ".",
+    "snapshot": "../snapshot"
+  },
+  "phase": "repo_shaped",
+  "publish_model": {
+    "branch": "main",
+    "cms_database_is_source_of_truth": true,
+    "customer_repo_is_source_of_truth": false,
+    "github_pages_source": "root",
+    "github_publish_implemented": false,
+    "replace_previous_generated_contents": true,
+    "repo_scope": "one_persistent_repo_per_customer_website"
+  },
+  "run_id": "export-20260718130533-0f977538",
+  "site": {
+    "name": "site",
+    "slug": "site"
+  },
+  "source_phase": "snapshot_and_media_copy"
+}

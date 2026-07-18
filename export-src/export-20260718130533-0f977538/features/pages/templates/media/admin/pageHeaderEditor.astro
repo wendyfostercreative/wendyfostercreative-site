@@ -1,0 +1,46 @@
+---
+import AdminSection from '../../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../../components/admin/fields/Input.astro';
+import AdminTextarea from '../../../../../components/admin/fields/Textarea.astro';
+import ToggleRow from '../../../../../components/admin/fields/ToggleRow.astro';
+
+import { normalizeImageTemplateContent } from '../schema/content';
+import type { CmsPage } from '../../../core/types';
+
+type Props = {
+	page: CmsPage;
+	t: (key: string, fallback: string) => string;
+};
+
+const { page, t } = Astro.props;
+const content = normalizeImageTemplateContent(page.content);
+---
+
+<AdminSection
+	title={t('admin.pages.edit.templates.media.page_header.title', 'Page Header')}
+	description={t('admin.pages.edit.templates.media.page_header.description', 'Optional top message for the whole image gallery page.')}
+>
+	<div class="grid gap-4" data-image-page-header>
+		<ToggleRow
+			id="image-show-page-header"
+			name="image_show_page_header"
+			label={t('admin.pages.edit.templates.media.page_header.show', 'Show page header')}
+			help={t('admin.pages.edit.templates.media.page_header.show_help', 'Turn this off when the gallery should start directly with images.')}
+			checked={content.show_page_header}
+			data-image-header-toggle
+		/>
+
+		<AdminField label={t('admin.pages.edit.templates.media.page_header.eyebrow', 'Eyebrow')} forId="image-page-header-eyebrow" help={t('admin.pages.edit.templates.media.page_header.eyebrow_help', 'Small optional label above the page heading.')}>
+			<AdminInput id="image-page-header-eyebrow" value={content.page_header.eyebrow} placeholder={t('admin.pages.edit.templates.media.page_header.eyebrow_placeholder', 'Gallery')} data-image-header-field="eyebrow" />
+		</AdminField>
+
+		<AdminField label={t('admin.pages.edit.templates.media.page_header.heading', 'Heading')} forId="image-page-header-heading">
+			<AdminInput id="image-page-header-heading" value={content.page_header.heading} placeholder={t('admin.pages.edit.templates.media.page_header.heading_placeholder', 'Gallery')} data-image-header-field="heading" />
+		</AdminField>
+
+		<AdminField label={t('admin.pages.edit.templates.media.page_header.intro', 'Intro')} forId="image-page-header-intro">
+			<AdminTextarea id="image-page-header-intro" rows={4} value={content.page_header.intro} placeholder={t('admin.pages.edit.templates.media.page_header.intro_placeholder', 'A short intro for this gallery.')} data-image-header-field="intro" />
+		</AdminField>
+	</div>
+</AdminSection>

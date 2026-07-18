@@ -1,0 +1,65 @@
+---
+import type { CmsPage } from '../../../core/types';
+import type { SiteConfig } from '../../../../siteConfig/core/types';
+
+import PageContainer from '../../../../../components/public/PageContainer.astro';
+import SectionHeading from '../../../../../components/public/SectionHeading.astro';
+import SectionShell from '../../../../../components/public/SectionShell.astro';
+import Button from '../../../../../components/ui/Button.astro';
+import { mediaCollectionKeyFromPath } from '../../../../media/core/collections';
+import { getMedia } from '../../../../media/public/api';
+import { toImageMediaViewItems } from '../../../../media/images/core/normalize';
+
+import { normalizeImageTemplateContent } from '../schema/content';
+import { imageGalleryLayoutRegistry } from './layouts/registry';
+
+interface Props {
+	page: CmsPage;
+	site: SiteConfig;
+	apiBaseUrl?: string;
+}
+
+const { page, apiBaseUrl } = Astro.props as Props;
+const content = normalizeImageTemplateContent(page.content);
+const source = content.source;
+const pageHeader = content.page_header;
+const pageHeaderHeading = pageHeader.heading || page.title || 'Gallery';
+const collection = mediaCollectionKeyFromPath(page.path) || source.collection;
+
+const media = await getMedia({
+	apiBaseUrl,
+	media_role: source.media_role,
+	collection,
+	limit: 24,
+	sort: 'sort_order',
+});
+
+const items = toImageMediaViewItems(media);
+const LayoutComponent = imageGalleryLayoutRegistry[content.display.layout_variant] ?? imageGalleryLayoutRegistry.grid;
+---
+
+<SectionShell spacing="compact">
+	<PageContainer width="site" class="grid gap-8">
+		{content.show_page_header ? (
+			<SectionHeading
+				eyebrow={pageHeader.eyebrow}
+				heading={pageHeaderHeading}
+				body={pageHeader.intro}
+				as="h1"
+				size="section"
+			/>
+		) : null}
+
+		{content.links.length > 0 ? (
+			<nav class="flex w-full flex-wrap gap-2" aria-label="Gallery links">
+				{content.links.map((link) => (
+					<Button href={link.url} variant="outline" tone="neutral" class="text-sm">
+						{link.label}
+					</Button>
+				))}
+			</nav>
+		) : null}
+
+		<LayoutComponent items={items} display={content.display} />
+	</PageContainer>
+</SectionShell>

@@ -1,0 +1,79 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminSelect from '../../../../components/admin/fields/Select.astro';
+
+import type { HeaderNavSettings } from '../../core/types';
+import { HEADER_NAV_LAYOUT_PRESETS } from '../../core/layoutPresets';
+import {
+	booleanOptions,
+	contentWidthOptions,
+	headerHeightOptions,
+	textDirectionOptions,
+} from '../forms/headerNavFields';
+
+type Props = {
+	headerNav: HeaderNavSettings;
+	t: (key: string, fallback: string) => string;
+};
+
+const { headerNav, t } = Astro.props;
+function optionLabel(group: string, value: string, fallback: string): string {
+	return t(`admin.header_nav.options.${group}.${value}`, fallback);
+}
+---
+<AdminSection title={t('admin.header_nav.layout.title', 'Layout')} description={t('admin.header_nav.layout.description', 'Controls the header arrangement, width, stickiness, and background.')}>
+	<div class="grid gap-5">
+		<div class="grid gap-4 sm:grid-cols-2">
+			<AdminField label={t('admin.header_nav.layout.layout_preset', 'Layout preset')} forId="layout_preset">
+				<AdminSelect id="layout_preset" name="layout_preset" density="compact">
+					{HEADER_NAV_LAYOUT_PRESETS.map((preset) => (
+						<option value={preset.value} selected={headerNav.layout_preset === preset.value}>
+							{optionLabel('layout_preset', preset.value, preset.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.layout.sticky', 'Sticky')} forId="sticky">
+				<AdminSelect id="sticky" name="sticky" density="compact">
+					{booleanOptions.map((option) => (
+						<option value={option.value} selected={String(headerNav.sticky) === option.value}>
+							{optionLabel('boolean', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.layout.content_width', 'Content width')} forId="content_width">
+				<AdminSelect id="content_width" name="content_width" density="compact">
+					{contentWidthOptions.map((option) => (
+						<option value={option.value} selected={headerNav.content_width === option.value}>
+							{optionLabel('content_width', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.layout.text_direction', 'Text direction')} forId="text_direction">
+				<AdminSelect id="text_direction" name="text_direction" density="compact">
+					{textDirectionOptions.map((option) => (
+						<option value={option.value} selected={headerNav.text_direction === option.value}>
+							{optionLabel('text_direction', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+
+			<AdminField label={t('admin.header_nav.layout.header_height', 'Header height')} forId="header_height">
+				<AdminSelect id="header_height" name="header_height" density="compact">
+					{headerHeightOptions.map((option) => (
+						<option value={option.value} selected={headerNav.header_height === option.value}>
+							{optionLabel('header_height', option.value, option.label)}
+						</option>
+					))}
+				</AdminSelect>
+			</AdminField>
+		</div>
+	</div>
+</AdminSection>

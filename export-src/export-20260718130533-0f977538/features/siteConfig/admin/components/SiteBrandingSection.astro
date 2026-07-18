@@ -1,0 +1,302 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminInput from '../../../../components/admin/fields/Input.astro';
+import Button from '../../../../components/ui/Button.astro';
+
+import type { SiteConfig } from '../../core/types';
+import { resolvePreviewSrc } from '../../../media/images/core/paths';
+
+type Props = {
+	site: SiteConfig;
+	t: (key: string, fallback: string) => string;
+};
+
+const { site, t } = Astro.props;
+const logoPath = site.identity.logo_path ?? '';
+const logoMediaKey = site.identity.logo_media_key ?? '';
+const logoThumbPath = site.identity.logo_thumb_path ?? '';
+const logoPreviewSrc = resolvePreviewSrc(logoThumbPath || logoPath);
+const logoSourceLabel = logoMediaKey
+	? t('admin.site_config.branding.logo_source_media', 'Media-backed logo')
+	: logoPath
+		? t('admin.site_config.branding.logo_source_path', 'Manual/path logo')
+		: t('admin.site_config.branding.logo_source_empty', 'No logo selected');
+---
+
+<AdminSection title={t('admin.site_config.branding.title', 'Branding')} description={t('admin.site_config.branding.description', 'Basic identity and brand media.')}>
+	<AdminField label={t('admin.site_config.branding.site_name', 'Site name')} forId="site_name">
+		<AdminInput id="site_name" name="site_name" value={site.identity.site_name} />
+	</AdminField>
+
+	<div
+		class="grid gap-4 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-[var(--site-color-panel)] p-4"
+		data-site-logo-picker
+		data-logo-loading={t('admin.site_config.branding.logo_loading', 'Loading logos...')}
+		data-logo-uploading={t('admin.site_config.branding.logo_uploading', 'Uploading logo...')}
+		data-logo-upload-failed={t('admin.site_config.branding.logo_upload_failed', 'Logo upload failed')}
+		data-logo-library-failed={t('admin.site_config.branding.logo_library_failed', 'Could not load media images')}
+	>
+		<input type="hidden" name="logo_media_key" value={logoMediaKey} data-logo-media-key-input />
+		<input type="hidden" name="logo_thumb_path" value={logoThumbPath} data-logo-thumb-path-input />
+
+		<div class="grid gap-4 sm:grid-cols-[180px_1fr] sm:items-start">
+			<div class="overflow-hidden rounded-[var(--site-radius-input)] border border-[var(--site-color-border-soft)] bg-white" style="aspect-ratio: 1 / 1;">
+				<img
+					class:list={['h-full w-full object-contain', logoPreviewSrc ? '' : 'hidden']}
+					src={logoPreviewSrc || undefined}
+					alt={site.identity.logo_alt_text ?? site.identity.site_name}
+					loading="lazy"
+					data-logo-preview
+				/>
+				<div
+					class:list={['flex h-full w-full items-center justify-center p-4 text-center text-xs text-[var(--site-color-text-muted)]', logoPreviewSrc ? 'hidden' : '']}
+					data-logo-preview-empty
+				>
+					{t('admin.site_config.branding.logo_empty', 'No logo selected')}
+				</div>
+			</div>
+
+			<div class="grid gap-3">
+				<div class="grid gap-1">
+					<div class="text-sm font-medium text-[var(--site-color-text)]" data-logo-source-label>{logoSourceLabel}</div>
+					<div class="break-all text-xs text-[var(--site-color-text-muted)]" data-logo-source-detail>
+						{logoMediaKey ? `media key: ${logoMediaKey}` : logoPath ? logoPath : t('admin.site_config.branding.logo_no_source', 'Upload a logo, choose an existing image, or enter a manual path below.')}
+					</div>
+				</div>
+
+				<div class="flex flex-wrap items-center gap-2">
+					<input class="hidden" type="file" accept="image/jpeg,image/png,image/webp" data-logo-file-input />
+					<button
+						class="rounded-[var(--site-radius-button)] border border-[var(--site-color-border-soft)] bg-[var(--site-color-button-bg)] px-3 py-2 text-sm text-[var(--site-color-button-text)]"
+						type="button"
+						data-logo-upload
+					>
+						{t('admin.site_config.branding.logo_upload', 'Upload logo')}
+					</button>
+					<button
+						class="rounded-[var(--site-radius-button)] border border-[var(--site-color-border-soft)] bg-white px-3 py-2 text-sm text-[var(--site-color-text)]"
+						type="button"
+						data-logo-choose
+					>
+						{t('admin.site_config.branding.logo_choose', 'Choose existing')}
+					</button>
+					<button
+						class="rounded-[var(--site-radius-button)] border border-[var(--site-color-border-soft)] bg-white px-3 py-2 text-sm text-[var(--site-color-text)]"
+						type="button"
+						data-logo-clear
+					>
+						{t('admin.site_config.branding.logo_clear', 'Remove logo')}
+					</button>
+				</div>
+				<div class="text-xs text-[var(--site-color-text-muted)]" data-logo-status></div>
+			</div>
+		</div>
+
+		<div class="hidden" data-logo-library>
+			<div class="grid gap-3 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-3">
+				<div class="flex items-center justify-between gap-2">
+					<div class="text-sm font-medium text-[var(--site-color-text)]">{t('admin.site_config.branding.logo_library_title', 'Choose image')}</div>
+					<button class="rounded-[var(--site-radius-button)] border border-[var(--site-color-border-soft)] bg-white px-2 py-1 text-xs text-[var(--site-color-text)]" type="button" data-logo-library-close>
+						{t('admin.site_config.branding.logo_library_close', 'Close')}
+					</button>
+				</div>
+				<div class="grid max-h-[28rem] gap-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3" data-logo-library-grid></div>
+			</div>
+		</div>
+	</div>
+
+	<AdminField
+		label={t('admin.site_config.branding.logo_path', 'Logo path (optional)')}
+		forId="logo_path"
+		help={t('admin.site_config.branding.logo_path_help', 'Manual/static fallback path. Media-backed logos resolve this from the selected media asset.')}
+	>
+		<AdminInput id="logo_path" name="logo_path" placeholder="/logo.svg" value={logoPath} data-logo-path-input />
+	</AdminField>
+
+	<AdminField
+		label={t('admin.site_config.branding.logo_alt_text', 'Logo alt text (optional)')}
+		forId="logo_alt_text"
+		help={t('admin.site_config.branding.logo_alt_text_help', 'Plain text used for screen readers when the logo is shown.')}
+	>
+		<AdminInput id="logo_alt_text" name="logo_alt_text" value={site.identity.logo_alt_text ?? ''} />
+	</AdminField>
+
+	<div class="grid gap-2">
+		<p class="text-sm text-[var(--site-color-text-muted)]">
+			Review the card. If it looks right, click APPLY to continue to Typography.
+		</p>
+		<div class="site-config-branding-apply flex items-center gap-3">
+			<Button type="button">APPLY</Button>
+		</div>
+	</div>
+</AdminSection>
+
+<script>
+	import {
+		listAdminContentMedia,
+		uploadAdminContentMedia,
+	} from '../../../media/admin/api';
+	import { resolvePreviewSrc } from '../../../media/images/core/paths';
+	import type { AdminContentMediaListItem, AdminContentMediaUploadResponse } from '../../../media/core/types';
+
+	function setStatus(root: HTMLElement, message: string): void {
+		const status = root.querySelector('[data-logo-status]') as HTMLElement | null;
+		if (status) status.textContent = message;
+	}
+
+	function setLogoValue(root: HTMLElement, item: Pick<AdminContentMediaUploadResponse, 'file_key' | 'webp_path' | 'thumb_path' | 'title'>): void {
+		const mediaKeyInput = root.querySelector('[data-logo-media-key-input]') as HTMLInputElement | null;
+		const thumbInput = root.querySelector('[data-logo-thumb-path-input]') as HTMLInputElement | null;
+		const pathInput = document.querySelector('[data-logo-path-input]') as HTMLInputElement | null;
+		const sourceLabel = root.querySelector('[data-logo-source-label]') as HTMLElement | null;
+		const sourceDetail = root.querySelector('[data-logo-source-detail]') as HTMLElement | null;
+
+		if (mediaKeyInput) mediaKeyInput.value = item.file_key;
+		if (thumbInput) thumbInput.value = item.thumb_path || '';
+		if (pathInput) {
+			pathInput.value = item.webp_path;
+			pathInput.dispatchEvent(new Event('input', { bubbles: true }));
+		}
+		if (sourceLabel) sourceLabel.textContent = 'Media-backed logo';
+		if (sourceDetail) sourceDetail.textContent = `media key: ${item.file_key}`;
+		syncPreview(root);
+	}
+
+	function clearLogoValue(root: HTMLElement): void {
+		const mediaKeyInput = root.querySelector('[data-logo-media-key-input]') as HTMLInputElement | null;
+		const thumbInput = root.querySelector('[data-logo-thumb-path-input]') as HTMLInputElement | null;
+		const pathInput = document.querySelector('[data-logo-path-input]') as HTMLInputElement | null;
+		const sourceLabel = root.querySelector('[data-logo-source-label]') as HTMLElement | null;
+		const sourceDetail = root.querySelector('[data-logo-source-detail]') as HTMLElement | null;
+
+		if (mediaKeyInput) mediaKeyInput.value = '';
+		if (thumbInput) thumbInput.value = '';
+		if (pathInput) {
+			pathInput.value = '';
+			pathInput.dispatchEvent(new Event('input', { bubbles: true }));
+		}
+		if (sourceLabel) sourceLabel.textContent = 'No logo selected';
+		if (sourceDetail) sourceDetail.textContent = 'Upload a logo, choose an existing image, or enter a manual path below.';
+		syncPreview(root);
+	}
+
+	function syncPreview(root: HTMLElement): void {
+		const pathInput = document.querySelector('[data-logo-path-input]') as HTMLInputElement | null;
+		const thumbInput = root.querySelector('[data-logo-thumb-path-input]') as HTMLInputElement | null;
+		const img = root.querySelector('[data-logo-preview]') as HTMLImageElement | null;
+		const empty = root.querySelector('[data-logo-preview-empty]') as HTMLElement | null;
+		if (!img || !empty) return;
+
+		const src = resolvePreviewSrc(thumbInput?.value || pathInput?.value || '');
+		if (src) {
+			img.src = src;
+			img.classList.remove('hidden');
+			empty.classList.add('hidden');
+		} else {
+			img.removeAttribute('src');
+			img.classList.add('hidden');
+			empty.classList.remove('hidden');
+		}
+	}
+
+	function buildLibraryButton(root: HTMLElement, item: AdminContentMediaListItem): HTMLButtonElement {
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'flex h-full flex-col gap-2 overflow-hidden rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-3 text-left text-[var(--site-color-text)] transition hover:border-[var(--site-color-border)]';
+		button.addEventListener('click', () => {
+			setLogoValue(root, item);
+			const panel = root.querySelector('[data-logo-library]') as HTMLElement | null;
+			panel?.classList.add('hidden');
+		});
+
+		const previewWrap = document.createElement('div');
+		previewWrap.className = 'flex w-full items-center justify-center overflow-hidden rounded-[var(--site-radius-input)] bg-[var(--site-color-panel)]';
+		previewWrap.style.aspectRatio = '1 / 1';
+		const img = document.createElement('img');
+		img.src = resolvePreviewSrc(item.thumb_path || item.webp_path);
+		img.alt = item.title || item.file_key;
+		img.loading = 'lazy';
+		img.className = 'block h-full w-full object-contain';
+		previewWrap.appendChild(img);
+
+		const label = document.createElement('div');
+		label.className = 'text-sm font-medium text-[var(--site-color-text)]';
+		label.textContent = item.title || item.file_key;
+
+		button.appendChild(previewWrap);
+		button.appendChild(label);
+		return button;
+	}
+
+	function renderLibrary(root: HTMLElement, items: AdminContentMediaListItem[]): void {
+		const grid = root.querySelector('[data-logo-library-grid]') as HTMLElement | null;
+		if (!grid) return;
+		grid.innerHTML = '';
+		items.forEach((item) => grid.appendChild(buildLibraryButton(root, item)));
+	}
+
+	function initSiteLogoPickers(root: ParentNode | null = document): void {
+		const scope = root ?? document;
+		Array.from(scope.querySelectorAll?.('[data-site-logo-picker]') ?? []).forEach((node) => {
+			const pickerRoot = node as HTMLElement;
+			if (pickerRoot.dataset.siteLogoPickerInitialized === 'true') return;
+			pickerRoot.dataset.siteLogoPickerInitialized = 'true';
+
+			const uploadBtn = pickerRoot.querySelector('[data-logo-upload]') as HTMLButtonElement | null;
+			const chooseBtn = pickerRoot.querySelector('[data-logo-choose]') as HTMLButtonElement | null;
+			const clearBtn = pickerRoot.querySelector('[data-logo-clear]') as HTMLButtonElement | null;
+			const fileInput = pickerRoot.querySelector('[data-logo-file-input]') as HTMLInputElement | null;
+			const panel = pickerRoot.querySelector('[data-logo-library]') as HTMLElement | null;
+			const closeBtn = pickerRoot.querySelector('[data-logo-library-close]') as HTMLButtonElement | null;
+			const loadingMessage = pickerRoot.dataset.logoLoading || 'Loading logos...';
+			const uploadingMessage = pickerRoot.dataset.logoUploading || 'Uploading logo...';
+			const uploadFailedMessage = pickerRoot.dataset.logoUploadFailed || 'Logo upload failed';
+			const libraryFailedMessage = pickerRoot.dataset.logoLibraryFailed || 'Could not load media images';
+
+			syncPreview(pickerRoot);
+			uploadBtn?.addEventListener('click', () => fileInput?.click());
+			clearBtn?.addEventListener('click', () => clearLogoValue(pickerRoot));
+			closeBtn?.addEventListener('click', () => panel?.classList.add('hidden'));
+
+			chooseBtn?.addEventListener('click', async () => {
+				if (!panel) return;
+				panel.classList.remove('hidden');
+				setStatus(pickerRoot, loadingMessage);
+				try {
+					const siteLogoItems = await listAdminContentMedia({ limit: 24, offset: 0, media_role: 'site_logo' });
+					const items = siteLogoItems.length
+						? siteLogoItems
+						: await listAdminContentMedia({ limit: 24, offset: 0 });
+					renderLibrary(pickerRoot, items);
+					setStatus(pickerRoot, '');
+				} catch (err) {
+					setStatus(pickerRoot, err instanceof Error ? err.message : libraryFailedMessage);
+				}
+			});
+
+			fileInput?.addEventListener('change', async () => {
+				const file = fileInput.files?.[0];
+				if (!file) return;
+				setStatus(pickerRoot, uploadingMessage);
+				try {
+					const uploaded = await uploadAdminContentMedia(file, {
+						title: file.name.replace(/\.[^.]+$/, ''),
+						media_role: 'site_logo',
+						collection: 'branding',
+						category: 'logo',
+					});
+					setLogoValue(pickerRoot, uploaded);
+					setStatus(pickerRoot, '');
+				} catch (err) {
+					setStatus(pickerRoot, err instanceof Error ? err.message : uploadFailedMessage);
+				} finally {
+					fileInput.value = '';
+				}
+			});
+		});
+	}
+
+	(window as any).initSiteLogoPickers = initSiteLogoPickers;
+	initSiteLogoPickers(document);
+</script>

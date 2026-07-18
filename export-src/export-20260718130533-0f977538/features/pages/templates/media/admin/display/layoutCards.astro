@@ -1,0 +1,42 @@
+---
+export type LayoutCardOption = {
+	value: string;
+	label: string;
+	description?: string;
+};
+
+type Props = {
+	fieldName: string;
+	fieldValue: string;
+	options: LayoutCardOption[];
+};
+
+const { fieldName, fieldValue, options } = Astro.props;
+---
+
+<div class="grid gap-3 sm:grid-cols-3">
+	{options.map((option) => (
+		<label class="block cursor-pointer">
+			<input
+				class="peer sr-only"
+				type="radio"
+				name={fieldName}
+				value={option.value}
+				checked={option.value === fieldValue || (!fieldValue && option.value === 'grid')}
+			/>
+
+			<div class="grid h-full gap-3 rounded-[var(--site-radius-card)] border border-[var(--site-color-border-soft)] bg-white p-3 text-[var(--site-color-text)] transition peer-checked:border-[var(--site-color-border)] peer-checked:ring-2 peer-checked:ring-[var(--site-color-border)]">
+				<div class="text-sm font-medium text-[var(--site-color-text)]">{option.label}</div>
+				<div class="grid min-h-[88px] grid-cols-3 gap-2 overflow-hidden rounded-[var(--site-radius-input)] border border-[var(--site-color-border-soft)] bg-[var(--site-color-panel)] p-3">
+					<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-border)] opacity-60"></div>
+					<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-border-soft)]"></div>
+					<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-border)] opacity-40"></div>
+					<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-border-soft)]"></div>
+					<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-border)] opacity-50"></div>
+					<div class="rounded-[var(--site-radius-input)] bg-[var(--site-color-border-soft)]"></div>
+				</div>
+				{option.description ? <p class="text-xs leading-5 text-[var(--site-color-text-muted)]">{option.description}</p> : null}
+			</div>
+		</label>
+	))}
+</div>

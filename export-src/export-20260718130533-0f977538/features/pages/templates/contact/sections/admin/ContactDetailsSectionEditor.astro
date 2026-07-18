@@ -1,0 +1,18 @@
+---
+import type { PageSection } from '../../../../sections/core/types';
+
+type Props = { section: PageSection; index: number };
+const { section } = Astro.props as Props;
+const content = (section.content || {}) as Record<string, any>;
+---
+<div class="grid gap-4" data-section-editor data-section-id={section.id} data-section-type="contact_details">
+	<label class="grid gap-1 text-sm font-medium">Email
+		<input class="rounded border px-3 py-2" type="email" data-section-field="email" value={content.email || ''} />
+	</label>
+	<label class="grid gap-1 text-sm font-medium">Phone
+		<input class="rounded border px-3 py-2" data-section-field="phone" value={content.phone || ''} />
+	</label>
+	<label class="grid gap-1 text-sm font-medium">Location
+		<textarea class="rounded border px-3 py-2" rows="3" data-section-field="location">{content.location || ''}</textarea>
+	</label>
+</div>

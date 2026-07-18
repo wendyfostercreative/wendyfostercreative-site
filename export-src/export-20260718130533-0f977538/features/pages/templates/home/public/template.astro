@@ -1,0 +1,15 @@
+---
+import type { CmsPage } from '../../../core/types';
+import PageSectionsRenderer from '../../../sections/public/PageSectionsRenderer.astro';
+import { homeSectionRegistry } from '../sections/registry';
+
+interface Props {
+	page: CmsPage;
+}
+
+const { page } = Astro.props as Props;
+---
+
+<main class="w-full text-[var(--site-color-text)]">
+	<PageSectionsRenderer content={page.content} registry={homeSectionRegistry} template="home" />
+</main>

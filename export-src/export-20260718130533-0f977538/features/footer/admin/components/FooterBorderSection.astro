@@ -1,0 +1,47 @@
+---
+import AdminSection from '../../../../components/admin/layout/Section.astro';
+import AdminField from '../../../../components/admin/fields/Field.astro';
+import AdminSelect from '../../../../components/admin/fields/Select.astro';
+import AdminColorField from '../../../../components/admin/fields/ColorField.astro';
+
+import type { FooterSettings } from '../../core/types';
+import {
+	booleanOptions,
+	borderThicknessOptions,
+} from '../forms/footerFields';
+
+type Props = {
+	footer: FooterSettings;
+	t: (key: string, fallback: string) => string;
+};
+
+const { footer, t } = Astro.props;
+function optionLabel(group: string, value: string, fallback: string): string {
+	return t(`admin.footer.options.${group}.${value}`, fallback);
+}
+---
+<AdminSection title={t('admin.footer.border.title', 'Border')} description={t('admin.footer.border.description', 'Controls the optional top border above the footer.')}>
+	<div class="grid gap-4 sm:grid-cols-3">
+		<AdminField label={t('admin.footer.border.show_border', 'Show top border')} forId="show_top_border">
+			<AdminSelect id="show_top_border" name="show_top_border" density="compact">
+				{booleanOptions.map((option) => (
+					<option value={option.value} selected={String(footer.show_top_border) === option.value}>
+						{optionLabel('boolean', option.value, option.label)}
+					</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+
+		<AdminField label={t('admin.footer.border.border_thickness', 'Border thickness')} forId="border_thickness">
+			<AdminSelect id="border_thickness" name="border_thickness" density="compact">
+				{borderThicknessOptions.map((option) => (
+					<option value={option.value} selected={footer.border_thickness === option.value}>
+						{optionLabel('border_thickness', option.value, option.label)}
+					</option>
+				))}
+			</AdminSelect>
+		</AdminField>
+
+		<AdminColorField label={t('admin.footer.border.border_color', 'Border color')} id="border_color" name="border_color" value={footer.border_color ?? ''} />
+	</div>
+</AdminSection>
