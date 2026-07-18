@@ -1,1 +1,0 @@
-export { headerNavDomainController } from './controller';

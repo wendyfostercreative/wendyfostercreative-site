@@ -2,7 +2,7 @@
 
 This repository root contains generated static website files for GitHub Pages.
 
-- Export run: `export-20260718130533-0f977538`
+- Export run: `export-20260718154452-9d4d9c28`
 - Publish source: root of `main`
 - Editable source of truth: FaberMax CMS database / project backup
 - Customer repo role: current published site target
