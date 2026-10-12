@@ -8,3 +8,5 @@ This repository root contains generated static website files for GitHub Pages.
 - Customer repo role: current published site target
 
 Do not edit this repo expecting changes to flow back into the CMS. Future publishes replace these generated files from the CMS export pipeline.
+
+Website export ready for GitHub Pages.
