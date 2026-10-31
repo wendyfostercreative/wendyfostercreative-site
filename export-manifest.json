@@ -4,7 +4,7 @@
     "github_pages_ready": true,
     "static_site_root": true
   },
-  "created_at": "2026-10-12T20:17:18.605928+00:00",
+  "created_at": "2026-10-31T23:41:57.512550+00:00",
   "paths": {
     "dist": "../dist",
     "repo": ".",
@@ -21,15 +21,15 @@
     "replace_previous_generated_contents": true,
     "repo_scope": "one_persistent_repo_per_customer_website"
   },
-  "run_id": "export-20261012201714-1d5497ad",
+  "run_id": "export-20261031234151-5b6b0e64",
   "settings": {
     "base_path": "/",
     "public_site_url": "https://wendyfostercreative.com",
     "target": "github_pages"
   },
   "site": {
-    "name": "site",
-    "slug": "site"
+    "name": "Wendy Foster Creative",
+    "slug": "wendy-foster-creative"
   },
   "source_phase": "snapshot_and_media_copy"
 }
